@@ -6,60 +6,101 @@
 		<title>Milk Shake Ordering</title>
 	</head>
 	<body>
-		<h1>Order a Milkshake</h1>
+		<h1>Blizzard Blast Ordering</h1>
 		<form action="http://localhost:3000" method="POST">
 			<label for="customer_name">Name: </label>
 			<input type="text" name="customer_name" placeholder="Name" />
 
-			<br>
+			<br />
 
-			<label for="milkshake_recipe">Milkshake: </label>
-			<select name="milkshake_recipe">
-				<option value="" disabled selected>Select a Milkshake</option>
-				<option value="Cookies & Cream">Cookies & Cream</option>
-				<option value="Strawberry">Strawberry</option>
-				<option value="Caramel">Caramel</option>
-				<option value="Vanilla">Vanilla</option>
-			</select>
+			<div id="milkshakes">
+				<div class="milkshake-block" data-index="0">
+					<label>Milkshake: </label>
+					<select name="milkshake_recipe[]">
+						<option value="" disabled selected>Select a Milkshake</option>
+						<option value="Cookies & Cream">Cookies & Cream</option>
+						<option value="Strawberry">Strawberry</option>
+						<option value="Caramel">Caramel</option>
+						<option value="Vanilla">Vanilla</option>
+					</select>
 
-			<br>
+					<br />
 
-			<div>
-				<p>Please select your size</p>
-				<input type="radio" name="size" value="8oz" id="size-small" />
-				<label for="size-small">8oz</label> <br>
-				<input type="radio" name="size" value="12oz" id="size-medium" />
-				<label for="size-medium">12oz</label> <br>
-				<input type="radio" name="size" value="16oz" id="size-large" />
-				<label for="size-large">16oz</label>
+					<div>
+						<p>Please select your size</p>
+						<label><input type="radio" name="size[0]" value="8oz" /> 8oz</label
+						><br />
+						<label
+							><input type="radio" name="size[0]" value="12oz" /> 12oz</label
+						><br />
+						<label
+							><input type="radio" name="size[0]" value="16oz" /> 16oz</label
+						>
+					</div>
+
+					<br />
+
+					<button type="button" onclick="addCustomization(this)">
+						add customization
+					</button>
+					<table class="customizations">
+						<tr>
+							<th>No Customizations Added</th>
+						</tr>
+					</table>
+				</div>
 			</div>
 
-			<br>
+			<br />
 
-			<button type="button" onclick="addCustomization()">add customization</button>
-			<table id="customizations" name="customizations">
-				<tr>
-					<th>No Customizations Added</th>
-				</tr>
-			</table>
+			<button type="button" onclick="addMilkshake()">
+				Add another Milkshake
+			</button>
 
-			<br>
+			<br />
 
 			<input type="submit" value="Order" />
 		</form>
 
 		<script>
-			function addCustomization() {
-				let customizationsTable = document.getElementById("customizations");
+			const milkshakesContainer = document.getElementById("milkshakes");
 
-				if (customizationsTable.rows.length === 1) {
-					customizationsTable.innerHTML = "<tr><th>Customization</th><th>Quantity per Serving</th></tr>"
+			let milkshakeCount = 1; // index 0 is the block already in the page
+
+			function addMilkshake() {
+				const index = milkshakeCount++;
+				const clone = milkshakesContainer
+					.querySelector(".milkshake-block")
+					.cloneNode(true);
+
+				clone.dataset.index = index;
+				clone.querySelector("select").selectedIndex = 0;
+				clone.querySelectorAll('input[type="radio"]').forEach((radio) => {
+					radio.name = `size[${index}]`;
+					radio.checked = false;
+				});
+				clone.querySelector(".customizations").innerHTML =
+					"<tr><th>No Customizations Added</th></tr>";
+
+				milkshakesContainer.appendChild(clone);
+			}
+
+			function addCustomization(button) {
+				const block = button.closest(".milkshake-block");
+				const index = block.dataset.index;
+				const table = block.querySelector(".customizations");
+
+				if (table.rows.length === 1) {
+					table.innerHTML =
+						"<tr><th>Customization</th><th>Quantity per Serving</th></tr>";
 				}
 
-				document.getElementById("customizations").insertAdjacentHTML("beforeend", `
+				table.insertAdjacentHTML(
+					"beforeend",
+					`
 					<tr>
 						<td>
-							<select name="customization[]">
+							<select name="customization[${index}][]">
 								<option value="" disabled selected>Select a Customization</option>
 								<option value="Almonds">Almonds</option>
 								<option value="Bananas">Bananas</option>
@@ -79,10 +120,11 @@
 							</select>
 						</td>
 						<td>
-							<input type="number" name="quantity[]" />
+							<input type="number" name="quantity[${index}][]" />
 						</td>
 					</tr>
-				`)
+				`,
+				);
 			}
 		</script>
 	</body>
