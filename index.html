@@ -6,11 +6,84 @@
 		<title>Milk Shake Ordering</title>
 	</head>
 	<body>
-		<h1></h1>
+		<h1>Order a Milkshake</h1>
 		<form action="http://localhost:3000" method="POST">
 			<label for="customer_name">Name: </label>
 			<input type="text" name="customer_name" placeholder="Name" />
-			<input type="submit" value="Order">
+
+			<br>
+
+			<label for="milkshake_recipe">Milkshake: </label>
+			<select name="milkshake_recipe">
+				<option value="" disabled selected>Select a Milkshake</option>
+				<option value="Cookies & Cream">Cookies & Cream</option>
+				<option value="Strawberry">Strawberry</option>
+				<option value="Caramel">Caramel</option>
+				<option value="Vanilla">Vanilla</option>
+			</select>
+
+			<br>
+
+			<div>
+				<p>Please select your size</p>
+				<input type="radio" name="size" value="8oz" id="size-small" />
+				<label for="size-small">8oz</label> <br>
+				<input type="radio" name="size" value="12oz" id="size-medium" />
+				<label for="size-medium">12oz</label> <br>
+				<input type="radio" name="size" value="16oz" id="size-large" />
+				<label for="size-large">16oz</label>
+			</div>
+
+			<br>
+
+			<button type="button" onclick="addCustomization()">add customization</button>
+			<table id="customizations" name="customizations">
+				<tr>
+					<th>No Customizations Added</th>
+				</tr>
+			</table>
+
+			<br>
+
+			<input type="submit" value="Order" />
 		</form>
+
+		<script>
+			function addCustomization() {
+				let customizationsTable = document.getElementById("customizations");
+
+				if (customizationsTable.rows.length === 1) {
+					customizationsTable.innerHTML = "<tr><th>Customization</th><th>Quantity per Serving</th></tr>"
+				}
+
+				document.getElementById("customizations").insertAdjacentHTML("beforeend", `
+					<tr>
+						<td>
+							<select name="customization[]">
+								<option value="" disabled selected>Select a Customization</option>
+								<option value="Almonds">Almonds</option>
+								<option value="Bananas">Bananas</option>
+								<option value="Butterfingers">Butterfingers</option>
+								<option value="Cashews">Cashews</option>
+								<option value="Cheesecake">Cheesecake</option>
+								<option value="Cookie Dough">Cookie Dough</option>
+								<option value="Full Cream Milk">Full Cream Milk</option>
+								<option value="Mini Marshmallows">Mini Marshmallows</option>
+								<option value="Nestle Crunch">Nestle Crunch</option>
+								<option value="Oreo">Oreo</option>
+								<option value="Soy Milk">Soy Milk</option>
+								<option value="Strawberries">Strawberries</option>
+								<option value="Vanilla Ice Cream">Vanilla Ice Cream</option>
+								<option value="Whipped Cream">Whipped Cream</option>
+								<option value="White Choco Chips">White Choco Chips</option>
+							</select>
+						</td>
+						<td>
+							<input type="number" name="quantity[]" />
+						</td>
+					</tr>
+				`)
+			}
+		</script>
 	</body>
 </html>
