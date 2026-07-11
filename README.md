@@ -11,8 +11,12 @@ Group 1: The One and Only
 ## Setup
 
 1. Download and install [Node.js](https://nodejs.org/) if you don't have it.
-2. Run:
+2. Download the dependencies by running:
+   ```
+   npm install
+   ```
+3. To run the full project run:
    ```
    node server.js
    ```
-3. Open http://localhost:3000
+4. Open http://localhost:3000
