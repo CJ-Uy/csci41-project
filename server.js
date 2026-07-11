@@ -1,7 +1,7 @@
 import express from "express"; // Web server framework
 import ejs from "ejs"; // Template engine used to render .html views
 import menuRoutes from "./src/routes/menuRoutes.js";
-import orderRoutes from "./src/routes/orderRoutes.js";
+import orderRoutes, { createOrder } from "./src/routes/orderRoutes.js";
 import receiptRoutes from "./src/routes/receiptRoutes.js";
 
 const app = express();
@@ -13,13 +13,41 @@ app.use(express.urlencoded({ extended: true })); // This allows us to read POST 
 app.use(express.static(".")); // Serves index.html (and any other root static files) automatically
 app.use(express.json()); // Needed only for the separate API routes below
 
+function asList(value) {
+	return Array.isArray(value) ? value : value ? [value] : [];
+}
+
 app.post("/", (req, res) => {
 	console.log(req.body);
 
-	// Insert logic to store it to the database
-	// Get the database instance
+	try {
+		const recipes = asList(req.body.milkshake_recipe);
+		const sizes = asList(req.body.size);
+		const customizations = asList(req.body.customization);
+		const quantities = asList(req.body.quantity);
 
-	res.render("Confirmation", req.body);
+		createOrder({
+			customerName: req.body.customer_name,
+			cashierStaffId: Number(req.body.cashier_staff_id),
+			items: recipes.map((recipeName, index) => {
+				const addOnNames = asList(customizations[index]);
+				const addOnQuantities = asList(quantities[index]);
+
+				return {
+					recipeName,
+					size: sizes[index],
+					addOns: addOnNames.map((ingredientName, addOnIndex) => ({
+						ingredientName,
+						quantity: Number(addOnQuantities[addOnIndex]),
+					})),
+				};
+			}),
+		});
+
+		res.render("Confirmation", req.body);
+	} catch (error) {
+		res.status(400).send(error.message);
+	}
 });
 
 app.get("/api/health", (req, res) => {

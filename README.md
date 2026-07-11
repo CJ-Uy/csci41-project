@@ -10,13 +10,25 @@ Group 1: The One and Only
 
 ## Setup
 
-1. Download and install [Node.js](https://nodejs.org/) if you don't have it.
-2. Download the dependencies by running:
-   ```
-   npm install
-   ```
-3. To run the full project run:
-   ```
-   node server.js
-   ```
-4. Open http://localhost:3000
+Download and install [Node.js](https://nodejs.org/) if you don't have it.
+
+Download the dependencies by running:
+
+```bash
+npm install
+```
+
+Set up the database tables and sample data by running:
+
+```bash
+npm run db:migrate
+npm run db:seed
+```
+
+To run the full project run:
+
+```bash
+node server.js
+```
+
+Open [http://localhost:3000](http://localhost:3000) in the browser.

@@ -45,22 +45,22 @@ function seed() {
     db.insert(ingredients).values([
       { name: 'Milk', quantity: 10000, unit: 'ml', addOnPrice: 0 },
       { name: 'Vanilla Ice Cream', quantity: 5000, unit: 'g', addOnPrice: 0 },
-      { name: 'Chocolate Syrup', quantity: 3000, unit: 'ml', addOnPrice: 1500 },
-      { name: 'Strawberries', quantity: 2000, unit: 'g', addOnPrice: 2000 },
-      { name: 'Mangoes', quantity: 3000, unit: 'g', addOnPrice: 2000 },
-      { name: 'Oreos', quantity: 1500, unit: 'g', addOnPrice: 2000 },
-      { name: 'Whipped Cream', quantity: 2000, unit: 'g', addOnPrice: 1500 },
-      { name: 'Sprinkles', quantity: 1000, unit: 'g', addOnPrice: 1000 },
-      { name: 'Caramel Sauce', quantity: 2500, unit: 'ml', addOnPrice: 2000 },
-      { name: 'Banana', quantity: 2500, unit: 'g', addOnPrice: 1500 },
+      { name: 'Chocolate Syrup', quantity: 3000, unit: 'ml', addOnPrice: 15.00 },
+      { name: 'Strawberries', quantity: 2000, unit: 'g', addOnPrice: 20.00 },
+      { name: 'Mangoes', quantity: 3000, unit: 'g', addOnPrice: 20.00 },
+      { name: 'Oreos', quantity: 1500, unit: 'g', addOnPrice: 20.00 },
+      { name: 'Whipped Cream', quantity: 2000, unit: 'g', addOnPrice: 15.00 },
+      { name: 'Sprinkles', quantity: 1000, unit: 'g', addOnPrice: 10.00 },
+      { name: 'Caramel Sauce', quantity: 2500, unit: 'ml', addOnPrice: 20.00 },
+      { name: 'Banana', quantity: 2500, unit: 'g', addOnPrice: 15.00 },
     ]).run();
 
     db.insert(milkshakeRecipes).values([
-      { name: 'Chocolate Milkshake', basePrice: 12000, description: 'Rich chocolate flavor' },
-      { name: 'Strawberry Milkshake', basePrice: 12000, description: 'Fresh strawberry taste' },
-      { name: 'Vanilla Milkshake', basePrice: 10000, description: 'Classic vanilla' },
-      { name: 'Oreo Milkshake', basePrice: 13000, description: 'Cookies and cream' },
-      { name: 'Mango Milkshake', basePrice: 13000, description: 'Tropical mango' },
+      { name: 'Chocolate Milkshake', basePrice: 120.00, description: 'Rich chocolate flavor' },
+      { name: 'Strawberry Milkshake', basePrice: 120.00, description: 'Fresh strawberry taste' },
+      { name: 'Vanilla Milkshake', basePrice: 100.00, description: 'Classic vanilla' },
+      { name: 'Oreo Milkshake', basePrice: 130.00, description: 'Cookies and cream' },
+      { name: 'Mango Milkshake', basePrice: 130.00, description: 'Tropical mango' },
     ]).run();
 
     db.insert(recipeIngredients).values([
@@ -81,36 +81,36 @@ function seed() {
     ]).run();
 
     db.insert(customerOrders).values([
-      { customerName: 'John Smith', cashierStaffId: 1, status: 'completed', total: 28000 },
-      { customerName: 'Bea Cruz', cashierStaffId: 1, status: 'completed', total: 25500 },
-      { customerName: 'Carlos Rodriguez', cashierStaffId: 3, status: 'completed', total: 40500 },
-      { customerName: 'Angela Davis', cashierStaffId: 3, status: 'pending', total: 12000 },
-      { customerName: 'Robert Brown', cashierStaffId: 5, status: 'preparing', total: 27500 },
+      { customerName: 'John Smith', cashierStaffId: 1, status: 'completed', total: 280.00 },
+      { customerName: 'Bea Cruz', cashierStaffId: 1, status: 'completed', total: 255.00 },
+      { customerName: 'Carlos Rodriguez', cashierStaffId: 3, status: 'completed', total: 405.00 },
+      { customerName: 'Angela Davis', cashierStaffId: 3, status: 'pending', total: 120.00 },
+      { customerName: 'Robert Brown', cashierStaffId: 5, status: 'preparing', total: 275.00 },
     ]).run();
 
     db.insert(orderItems).values([
-      { orderId: 1, recipeId: 1, size: '12oz', basePrice: 12000, subtotal: 15000 },
-      { orderId: 1, recipeId: 2, size: '8oz', basePrice: 12000, subtotal: 13000 },
-      { orderId: 2, recipeId: 3, size: '16oz', basePrice: 10000, subtotal: 12500 },
-      { orderId: 2, recipeId: 4, size: '12oz', basePrice: 13000, subtotal: 13000 },
-      { orderId: 3, recipeId: 5, size: '12oz', basePrice: 13000, subtotal: 14500 },
-      { orderId: 3, recipeId: 5, size: '12oz', basePrice: 13000, subtotal: 14000 },
-      { orderId: 3, recipeId: 1, size: '16oz', basePrice: 12000, subtotal: 12000 },
-      { orderId: 4, recipeId: 3, size: '12oz', basePrice: 10000, subtotal: 12000 },
-      { orderId: 5, recipeId: 4, size: '16oz', basePrice: 13000, subtotal: 14500 },
-      { orderId: 5, recipeId: 2, size: '12oz', basePrice: 12000, subtotal: 13000 },
+      { orderId: 1, recipeId: 1, size: '12oz', basePrice: 120.00, subtotal: 150.00 },
+      { orderId: 1, recipeId: 2, size: '8oz', basePrice: 120.00, subtotal: 130.00 },
+      { orderId: 2, recipeId: 3, size: '16oz', basePrice: 100.00, subtotal: 125.00 },
+      { orderId: 2, recipeId: 4, size: '12oz', basePrice: 130.00, subtotal: 130.00 },
+      { orderId: 3, recipeId: 5, size: '12oz', basePrice: 130.00, subtotal: 145.00 },
+      { orderId: 3, recipeId: 5, size: '12oz', basePrice: 130.00, subtotal: 140.00 },
+      { orderId: 3, recipeId: 1, size: '16oz', basePrice: 120.00, subtotal: 120.00 },
+      { orderId: 4, recipeId: 3, size: '12oz', basePrice: 100.00, subtotal: 120.00 },
+      { orderId: 5, recipeId: 4, size: '16oz', basePrice: 130.00, subtotal: 145.00 },
+      { orderId: 5, recipeId: 2, size: '12oz', basePrice: 120.00, subtotal: 130.00 },
     ]).run();
 
     db.insert(orderItemAddOns).values([
-      { orderItemId: 1, ingredientId: 7, quantity: 2, unitPrice: 1500, subtotal: 3000 },
-      { orderItemId: 2, ingredientId: 8, quantity: 1, unitPrice: 1000, subtotal: 1000 },
-      { orderItemId: 3, ingredientId: 7, quantity: 1, unitPrice: 1500, subtotal: 1500 },
-      { orderItemId: 3, ingredientId: 8, quantity: 1, unitPrice: 1000, subtotal: 1000 },
-      { orderItemId: 5, ingredientId: 7, quantity: 1, unitPrice: 1500, subtotal: 1500 },
-      { orderItemId: 6, ingredientId: 8, quantity: 1, unitPrice: 1000, subtotal: 1000 },
-      { orderItemId: 8, ingredientId: 9, quantity: 1, unitPrice: 2000, subtotal: 2000 },
-      { orderItemId: 9, ingredientId: 7, quantity: 1, unitPrice: 1500, subtotal: 1500 },
-      { orderItemId: 10, ingredientId: 8, quantity: 1, unitPrice: 1000, subtotal: 1000 },
+      { orderItemId: 1, ingredientId: 7, quantity: 2, unitPrice: 15.00, subtotal: 30.00 },
+      { orderItemId: 2, ingredientId: 8, quantity: 1, unitPrice: 10.00, subtotal: 10.00 },
+      { orderItemId: 3, ingredientId: 7, quantity: 1, unitPrice: 15.00, subtotal: 15.00 },
+      { orderItemId: 3, ingredientId: 8, quantity: 1, unitPrice: 10.00, subtotal: 10.00 },
+      { orderItemId: 5, ingredientId: 7, quantity: 1, unitPrice: 15.00, subtotal: 15.00 },
+      { orderItemId: 6, ingredientId: 8, quantity: 1, unitPrice: 10.00, subtotal: 10.00 },
+      { orderItemId: 8, ingredientId: 9, quantity: 1, unitPrice: 20.00, subtotal: 20.00 },
+      { orderItemId: 9, ingredientId: 7, quantity: 1, unitPrice: 15.00, subtotal: 15.00 },
+      { orderItemId: 10, ingredientId: 8, quantity: 1, unitPrice: 10.00, subtotal: 10.00 },
     ]).run();
   });
 

@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   sqliteTable,
   integer,
+  real,
   text,
   primaryKey,
   check,
@@ -40,7 +41,7 @@ export const ingredients = sqliteTable(
     name: text('name').notNull().unique(),
     quantity: integer('quantity').notNull().default(0),
     unit: text('unit').notNull().default('g'),
-    addOnPrice: integer('add_on_price').notNull().default(0),
+    addOnPrice: real('add_on_price').notNull().default(0),
   },
   (table) => [
     check('ingredients_quantity_check', sql`${table.quantity} >= 0`),
@@ -53,7 +54,7 @@ export const milkshakeRecipes = sqliteTable(
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
     name: text('name').notNull().unique(),
-    basePrice: integer('base_price').notNull(),
+    basePrice: real('base_price').notNull(),
     description: text('description'),
   },
   (table) => [
@@ -87,7 +88,7 @@ export const customerOrders = sqliteTable(
       .notNull()
       .references(() => staff.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
     status: text('status').notNull().default('pending'),
-    total: integer('total').notNull().default(0),
+    total: real('total').notNull().default(0),
     createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => [
@@ -111,8 +112,8 @@ export const orderItems = sqliteTable(
       .notNull()
       .references(() => milkshakeRecipes.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
     size: text('size').notNull(),
-    basePrice: integer('base_price').notNull(),
-    subtotal: integer('subtotal').notNull(),
+    basePrice: real('base_price').notNull(),
+    subtotal: real('subtotal').notNull(),
   },
   (table) => [
     check('order_items_size_check', sql`${table.size} IN ('8oz', '12oz', '16oz')`),
@@ -131,8 +132,8 @@ export const orderItemAddOns = sqliteTable(
       .notNull()
       .references(() => ingredients.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
     quantity: integer('quantity').notNull(),
-    unitPrice: integer('unit_price').notNull(),
-    subtotal: integer('subtotal').notNull(),
+    unitPrice: real('unit_price').notNull(),
+    subtotal: real('subtotal').notNull(),
   },
   (table) => [
     primaryKey({ columns: [table.orderItemId, table.ingredientId] }),
