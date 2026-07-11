@@ -137,9 +137,8 @@ export const orderItemAddOns = sqliteTable(
   },
   (table) => [
     primaryKey({ columns: [table.orderItemId, table.ingredientId] }),
-    check('order_item_add_ons_quantity_check', sql`${table.quantity} > 0`),
+    check('order_item_add_ons_quantity_check', sql`${table.quantity} != 0`),
     check('order_item_add_ons_unit_price_check', sql`${table.unitPrice} >= 0`),
-    check('order_item_add_ons_subtotal_check', sql`${table.subtotal} >= 0`),
     check(
       'order_item_add_ons_math_check',
       sql`${table.subtotal} = ${table.quantity} * ${table.unitPrice}`,

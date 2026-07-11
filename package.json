@@ -10,8 +10,7 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:seed": "node src/db/seed.js",
-		"db:reset": "rm -f database.db database.db-shm database.db-wal && npm run db:migrate && npm run db:seed",
-		"test": "node tests/constraints.test.js"
+		"db:reset": "rm -f database.db database.db-shm database.db-wal && npm run db:migrate && npm run db:seed"
 	},
 	"keywords": [],
 	"author": "",

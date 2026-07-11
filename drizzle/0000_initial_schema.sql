@@ -85,8 +85,7 @@ CREATE TABLE `order_item_add_ons` (
   PRIMARY KEY(`order_item_id`, `ingredient_id`),
   FOREIGN KEY (`order_item_id`) REFERENCES `order_items`(`id`) ON UPDATE cascade ON DELETE cascade,
   FOREIGN KEY (`ingredient_id`) REFERENCES `ingredients`(`id`) ON UPDATE cascade ON DELETE restrict,
-  CONSTRAINT `order_item_add_ons_quantity_check` CHECK(`quantity` > 0),
+  CONSTRAINT `order_item_add_ons_quantity_check` CHECK(`quantity` != 0),
   CONSTRAINT `order_item_add_ons_unit_price_check` CHECK(`unit_price` >= 0),
-  CONSTRAINT `order_item_add_ons_subtotal_check` CHECK(`subtotal` >= 0),
   CONSTRAINT `order_item_add_ons_math_check` CHECK(`subtotal` = `quantity` * `unit_price`)
 );
