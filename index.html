@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Milk Shake Ordering</title>
+		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
 		<h1>Blizzard Blast Ordering</h1>
@@ -24,7 +25,16 @@
 
 			<div id="milkshakes">
 				<div class="milkshake-block" data-index="0">
-					<label>Milkshake: </label>
+					<div class="milkshake-header">
+						<label>Milkshake</label>
+						<button
+							type="button"
+							class="remove-milkshake-btn"
+							onclick="removeMilkshake(this)">
+							X
+						</button>
+					</div>
+					
 					<select name="milkshake_recipe[]">
 						<option value="" disabled selected>Select a Milkshake</option>
 						<option value="Chocolate Milkshake">Chocolate Milkshake</option>
@@ -127,10 +137,29 @@
 						<td>
 							<input type="number" name="quantity[${index}][]" />
 						</td>
+						<td>
+							<button type="button" onclick="removeCustomization(this)">X</button>
+						</td>
 					</tr>
 				`,
 				);
 			}
+
+			function removeMilkshake(button) {
+				if (milkshakeCount>1){
+					button.closest(".milkshake-block").remove();
+				}
+				milkshakeCount--;
+			};
+
+			function removeCustomization(button) {
+				const table = button.closest(".customizations");
+				button.closest("tr").remove();
+
+				if (table.rows.length === 1) {
+					table.innerHTML = "<tr><th>No Customizations Added</th></tr>";
+				}
+			};
 		</script>
 	</body>
 </html>
