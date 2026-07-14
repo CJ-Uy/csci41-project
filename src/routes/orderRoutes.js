@@ -1,9 +1,10 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../db/index.js";
 import {
 	customerOrders,
 	ingredients,
 	milkshakeRecipes,
+	recipeSizes,
 	orderItemAddOns,
 	orderItems,
 	staff,
@@ -37,7 +38,7 @@ export function createOrder(orderData) {
 
 		const savedOrder = tx
 			.insert(customerOrders)
-			.values({ customerName: customerName.trim(), cashierStaffId, total: 0 })
+			.values({ customerName: customerName.trim(), cashierStaffId })
 			.returning({ orderId: customerOrders.id })
 			.get();
 
@@ -64,13 +65,25 @@ export function createOrder(orderData) {
 				throw new Error("Selected milkshake recipe does not exist.");
 			}
 
+			const recipeSize = tx
+				.select()
+				.from(recipeSizes)
+				.where(
+					and(eq(recipeSizes.recipeId, recipe.id), eq(recipeSizes.size, item.size)),
+				)
+				.get();
+
+			if (!recipeSize) {
+				throw new Error("Selected recipe size does not exist.");
+			}
+
 			const addOns = item.addOns || [];
 			let addOnTotal = 0;
 			const savedAddOns = [];
 
 			for (const addOn of addOns) {
-				if (!Number.isInteger(addOn.quantity) || addOn.quantity === 0) {
-					throw new Error("Add-on quantity must be a non-zero integer.");
+				if (!Number.isInteger(addOn.quantity) || addOn.quantity <= 0) {
+					throw new Error("Add-on quantity must be a positive integer.");
 				}
 
 				const ingredient = addOn.ingredientId
@@ -89,20 +102,22 @@ export function createOrder(orderData) {
 					throw new Error("Selected add-on does not exist.");
 				}
 
-				const subtotal = ingredient.addOnPrice * addOn.quantity;
+				if (ingredient.category !== "add-on" || ingredient.pricePerServing <= 0) {
+					throw new Error("Selected ingredient is not an available add-on.");
+				}
+
+				const subtotal = ingredient.pricePerServing * addOn.quantity;
 				addOnTotal += subtotal;
-				savedAddOns.push({ ingredient, quantity: addOn.quantity, subtotal });
+				savedAddOns.push({ ingredient, quantity: addOn.quantity });
 			}
 
-			const subtotal = recipe.basePrice + addOnTotal;
+			const subtotal = recipeSize.basePrice + addOnTotal;
 			const savedItem = tx
 				.insert(orderItems)
 				.values({
 					orderId: savedOrder.orderId,
 					recipeId: recipe.id,
 					size: item.size,
-					basePrice: recipe.basePrice,
-					subtotal,
 				})
 				.returning({ orderItemId: orderItems.id })
 				.get();
@@ -113,8 +128,6 @@ export function createOrder(orderData) {
 						orderItemId: savedItem.orderItemId,
 						ingredientId: addOn.ingredient.id,
 						quantity: addOn.quantity,
-						unitPrice: addOn.ingredient.addOnPrice,
-						subtotal: addOn.subtotal,
 					})
 					.run();
 			}
@@ -122,10 +135,6 @@ export function createOrder(orderData) {
 			total += subtotal;
 		}
 
-		tx.update(customerOrders)
-			.set({ total })
-			.where(eq(customerOrders.id, savedOrder.orderId))
-			.run();
 		return { orderId: savedOrder.orderId, total };
 	});
 }

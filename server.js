@@ -9,7 +9,6 @@ app.set("view engine", "html"); // Default view file extension for res.render()
 
 app.use(express.urlencoded({ extended: true })); // This allows us to read POST request bodies
 app.use(express.static(".")); // Serves index.html (and any other root static files) automatically
-app.use(express.json()); // Needed only for the separate API routes below
 
 function asList(value) {
 	return Array.isArray(value) ? value : value ? [value] : [];
@@ -24,7 +23,7 @@ app.post("/", (req, res) => {
 		const customizations = asList(req.body.customization);
 		const quantities = asList(req.body.quantity);
 
-		createOrder({
+		const order = createOrder({
 			customerName: req.body.customer_name,
 			cashierStaffId: Number(req.body.cashier_staff_id),
 			items: recipes.map((recipeName, index) => {
@@ -46,8 +45,9 @@ app.post("/", (req, res) => {
 			...req.body,
 			milkshake_recipe: recipes,
 			size: sizes,
-			customization: customizations,
-			quantity: quantities,
+			customization: recipes.map((_, index) => asList(customizations[index])),
+			quantity: recipes.map((_, index) => asList(quantities[index])),
+			orderTotal: order.total,
 		});
 	} catch (error) {
 		res.status(400).send(error.message);

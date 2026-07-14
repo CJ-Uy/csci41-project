@@ -1,0 +1,604 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "bba9f140-7537-4edf-ab41-587aaa5c1077",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "customer_orders": {
+      "name": "customer_orders",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "customer_name": {
+          "name": "customer_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "cashier_staff_id": {
+          "name": "cashier_staff_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "customer_orders_cashier_staff_id_staff_id_fk": {
+          "name": "customer_orders_cashier_staff_id_staff_id_fk",
+          "tableFrom": "customer_orders",
+          "tableTo": "staff",
+          "columnsFrom": [
+            "cashier_staff_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "customer_orders_name_check": {
+          "name": "customer_orders_name_check",
+          "value": "length(trim(\"customer_orders\".\"customer_name\")) > 0"
+        }
+      }
+    },
+    "ingredients": {
+      "name": "ingredients",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "qty_on_hand": {
+          "name": "qty_on_hand",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "price_per_serving": {
+          "name": "price_per_serving",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "ingredients_name_unique": {
+          "name": "ingredients_name_unique",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "ingredients_qty_on_hand_check": {
+          "name": "ingredients_qty_on_hand_check",
+          "value": "\"ingredients\".\"qty_on_hand\" >= 0"
+        },
+        "ingredients_price_per_serving_check": {
+          "name": "ingredients_price_per_serving_check",
+          "value": "\"ingredients\".\"price_per_serving\" >= 0"
+        }
+      }
+    },
+    "milkshake_recipes": {
+      "name": "milkshake_recipes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "milkshake_recipes_name_unique": {
+          "name": "milkshake_recipes_name_unique",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "order_item_add_ons": {
+      "name": "order_item_add_ons",
+      "columns": {
+        "order_item_id": {
+          "name": "order_item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ingredient_id": {
+          "name": "ingredient_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "customization_qty": {
+          "name": "customization_qty",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "order_item_add_ons_order_item_id_order_items_id_fk": {
+          "name": "order_item_add_ons_order_item_id_order_items_id_fk",
+          "tableFrom": "order_item_add_ons",
+          "tableTo": "order_items",
+          "columnsFrom": [
+            "order_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "order_item_add_ons_ingredient_id_ingredients_id_fk": {
+          "name": "order_item_add_ons_ingredient_id_ingredients_id_fk",
+          "tableFrom": "order_item_add_ons",
+          "tableTo": "ingredients",
+          "columnsFrom": [
+            "ingredient_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "order_item_add_ons_order_item_id_ingredient_id_pk": {
+          "columns": [
+            "order_item_id",
+            "ingredient_id"
+          ],
+          "name": "order_item_add_ons_order_item_id_ingredient_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "order_item_add_ons_quantity_check": {
+          "name": "order_item_add_ons_quantity_check",
+          "value": "\"order_item_add_ons\".\"customization_qty\" > 0"
+        }
+      }
+    },
+    "order_items": {
+      "name": "order_items",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "order_id": {
+          "name": "order_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recipe_id": {
+          "name": "recipe_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "milkshake_size": {
+          "name": "milkshake_size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "order_items_order_id_customer_orders_id_fk": {
+          "name": "order_items_order_id_customer_orders_id_fk",
+          "tableFrom": "order_items",
+          "tableTo": "customer_orders",
+          "columnsFrom": [
+            "order_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "order_items_recipe_size_fk": {
+          "name": "order_items_recipe_size_fk",
+          "tableFrom": "order_items",
+          "tableTo": "recipe_sizes",
+          "columnsFrom": [
+            "recipe_id",
+            "milkshake_size"
+          ],
+          "columnsTo": [
+            "recipe_id",
+            "milkshake_size"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "recipe_ingredient_requirements": {
+      "name": "recipe_ingredient_requirements",
+      "columns": {
+        "recipe_id": {
+          "name": "recipe_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ingredient_id": {
+          "name": "ingredient_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "milkshake_size": {
+          "name": "milkshake_size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "needed_qty": {
+          "name": "needed_qty",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recipe_ingredient_requirements_ingredient_id_ingredients_id_fk": {
+          "name": "recipe_ingredient_requirements_ingredient_id_ingredients_id_fk",
+          "tableFrom": "recipe_ingredient_requirements",
+          "tableTo": "ingredients",
+          "columnsFrom": [
+            "ingredient_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "recipe_requirements_recipe_size_fk": {
+          "name": "recipe_requirements_recipe_size_fk",
+          "tableFrom": "recipe_ingredient_requirements",
+          "tableTo": "recipe_sizes",
+          "columnsFrom": [
+            "recipe_id",
+            "milkshake_size"
+          ],
+          "columnsTo": [
+            "recipe_id",
+            "milkshake_size"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "recipe_ingredient_requirements_recipe_id_ingredient_id_milkshake_size_pk": {
+          "columns": [
+            "recipe_id",
+            "ingredient_id",
+            "milkshake_size"
+          ],
+          "name": "recipe_ingredient_requirements_recipe_id_ingredient_id_milkshake_size_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "recipe_requirements_needed_qty_check": {
+          "name": "recipe_requirements_needed_qty_check",
+          "value": "\"recipe_ingredient_requirements\".\"needed_qty\" >= 0"
+        }
+      }
+    },
+    "recipe_sizes": {
+      "name": "recipe_sizes",
+      "columns": {
+        "recipe_id": {
+          "name": "recipe_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "milkshake_size": {
+          "name": "milkshake_size",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "base_price": {
+          "name": "base_price",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recipe_sizes_recipe_id_milkshake_recipes_id_fk": {
+          "name": "recipe_sizes_recipe_id_milkshake_recipes_id_fk",
+          "tableFrom": "recipe_sizes",
+          "tableTo": "milkshake_recipes",
+          "columnsFrom": [
+            "recipe_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "recipe_sizes_recipe_id_milkshake_size_pk": {
+          "columns": [
+            "recipe_id",
+            "milkshake_size"
+          ],
+          "name": "recipe_sizes_recipe_id_milkshake_size_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "recipe_sizes_size_check": {
+          "name": "recipe_sizes_size_check",
+          "value": "\"recipe_sizes\".\"milkshake_size\" IN ('8oz', '12oz', '16oz')"
+        },
+        "recipe_sizes_base_price_check": {
+          "name": "recipe_sizes_base_price_check",
+          "value": "\"recipe_sizes\".\"base_price\" >= 0"
+        }
+      }
+    },
+    "schedules": {
+      "name": "schedules",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "staff_id": {
+          "name": "staff_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "schedules_staff_id_staff_id_fk": {
+          "name": "schedules_staff_id_staff_id_fk",
+          "tableFrom": "schedules",
+          "tableTo": "staff",
+          "columnsFrom": [
+            "staff_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "schedules_role_check": {
+          "name": "schedules_role_check",
+          "value": "\"schedules\".\"role\" IN ('cashier', 'preparer')"
+        },
+        "schedules_date_check": {
+          "name": "schedules_date_check",
+          "value": "\"schedules\".\"end_date\" >= \"schedules\".\"start_date\""
+        }
+      }
+    },
+    "staff": {
+      "name": "staff",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "transaction_preparers": {
+      "name": "transaction_preparers",
+      "columns": {
+        "transaction_id": {
+          "name": "transaction_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "staff_id": {
+          "name": "staff_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "transaction_preparers_transaction_id_customer_orders_id_fk": {
+          "name": "transaction_preparers_transaction_id_customer_orders_id_fk",
+          "tableFrom": "transaction_preparers",
+          "tableTo": "customer_orders",
+          "columnsFrom": [
+            "transaction_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "transaction_preparers_staff_id_staff_id_fk": {
+          "name": "transaction_preparers_staff_id_staff_id_fk",
+          "tableFrom": "transaction_preparers",
+          "tableTo": "staff",
+          "columnsFrom": [
+            "staff_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "transaction_preparers_transaction_id_staff_id_pk": {
+          "columns": [
+            "transaction_id",
+            "staff_id"
+          ],
+          "name": "transaction_preparers_transaction_id_staff_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}
