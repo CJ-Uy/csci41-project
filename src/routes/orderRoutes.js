@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import { Router } from "express";
 import { db } from "../db/index.js";
 import {
 	customerOrders,
@@ -9,37 +8,7 @@ import {
 	orderItems,
 	staff,
 } from "../db/schema.js";
-import { getReceipt } from "./receiptRoutes.js";
-
-const router = Router();
 const validSizes = ["8oz", "12oz", "16oz"];
-
-export function getOrders() {
-	return db
-		.select({
-			orderId: customerOrders.id,
-			customerName: customerOrders.customerName,
-			cashierName: staff.name,
-			status: customerOrders.status,
-			orderDateTime: customerOrders.createdAt,
-			total: customerOrders.total,
-		})
-		.from(customerOrders)
-		.innerJoin(staff, eq(customerOrders.cashierStaffId, staff.id))
-		.all()
-		.map((order) => ({
-			...order,
-			itemCount: db
-				.select()
-				.from(orderItems)
-				.where(eq(orderItems.orderId, order.orderId))
-				.all().length,
-		}));
-}
-
-router.get("/", (req, res) => {
-	res.json({ orders: getOrders() });
-});
 
 export function createOrder(orderData) {
 	const { customerName, cashierStaffId, items } = orderData;
@@ -160,18 +129,3 @@ export function createOrder(orderData) {
 		return { orderId: savedOrder.orderId, total };
 	});
 }
-
-router.post("/", (req, res) => {
-	try {
-		const order = createOrder(req.body);
-		res.status(201).json({
-			message: "Order saved",
-			order,
-			receipt: getReceipt(order.orderId),
-		});
-	} catch (error) {
-		res.status(400).json({ error: error.message });
-	}
-});
-
-export default router;

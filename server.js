@@ -1,8 +1,6 @@
 import express from "express"; // Web server framework
 import ejs from "ejs"; // Template engine used to render .html views
-import menuRoutes from "./src/routes/menuRoutes.js";
-import orderRoutes, { createOrder } from "./src/routes/orderRoutes.js";
-import receiptRoutes from "./src/routes/receiptRoutes.js";
+import { createOrder } from "./src/routes/orderRoutes.js";
 
 const app = express();
 
@@ -44,19 +42,17 @@ app.post("/", (req, res) => {
 			}),
 		});
 
-		res.render("Confirmation", req.body);
+		res.render("Confirmation", {
+			...req.body,
+			milkshake_recipe: recipes,
+			size: sizes,
+			customization: customizations,
+			quantity: quantities,
+		});
 	} catch (error) {
 		res.status(400).send(error.message);
 	}
 });
-
-app.get("/api/health", (req, res) => {
-	res.json({ status: "ok" });
-});
-
-app.use("/api/menu", menuRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/orders", receiptRoutes);
 
 app.listen(3000, () => {
 	console.log("Open the application at http://localhost:3000");
