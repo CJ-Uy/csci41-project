@@ -1,15 +1,24 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../db/index.js";
 import {
-	customerOrders,
-	ingredients,
-	milkshakeRecipes,
-	recipeSizes,
-	orderItemAddOns,
-	orderItems,
+	customization,
+	ingredient,
+	milkshake,
+	milkshakeRecipe,
+	recipe,
 	staff,
+	transaction,
 } from "../db/schema.js";
+
 const validSizes = ["8oz", "12oz", "16oz"];
+
+function basePriceFor(recipeRow, size) {
+	return {
+		"8oz": recipeRow.basePrice8oz,
+		"12oz": recipeRow.basePrice12oz,
+		"16oz": recipeRow.basePrice16oz,
+	}[size];
+}
 
 export function createOrder(orderData) {
 	const { customerName, cashierStaffId, items } = orderData;
@@ -36,105 +45,114 @@ export function createOrder(orderData) {
 			throw new Error("Selected cashier does not exist.");
 		}
 
-		const savedOrder = tx
-			.insert(customerOrders)
-			.values({ customerName: customerName.trim(), cashierStaffId })
-			.returning({ orderId: customerOrders.id })
-			.get();
-
-		let total = 0;
-
-		for (const item of items) {
+		// Resolve and price every item before inserting anything, since
+		// transaction.total_cost is NOT NULL and must be known up front.
+		const pricedItems = items.map((item) => {
 			if (!validSizes.includes(item.size)) {
 				throw new Error("Milkshake size must be 8oz, 12oz, or 16oz.");
 			}
 
-			const recipe = item.recipeId
-				? tx
-						.select()
-						.from(milkshakeRecipes)
-						.where(eq(milkshakeRecipes.id, item.recipeId))
-						.get()
+			const recipeRow = item.recipeId
+				? tx.select().from(recipe).where(eq(recipe.id, item.recipeId)).get()
 				: tx
 						.select()
-						.from(milkshakeRecipes)
-						.where(eq(milkshakeRecipes.name, item.recipeName))
+						.from(recipe)
+						.where(eq(recipe.name, item.recipeName))
 						.get();
 
-			if (!recipe) {
+			if (!recipeRow) {
 				throw new Error("Selected milkshake recipe does not exist.");
 			}
 
-			const recipeSize = tx
-				.select()
-				.from(recipeSizes)
-				.where(
-					and(eq(recipeSizes.recipeId, recipe.id), eq(recipeSizes.size, item.size)),
-				)
-				.get();
-
-			if (!recipeSize) {
-				throw new Error("Selected recipe size does not exist.");
-			}
-
-			const addOns = item.addOns || [];
-			let addOnTotal = 0;
-			const savedAddOns = [];
-
-			for (const addOn of addOns) {
-				if (!Number.isInteger(addOn.quantity) || addOn.quantity <= 0) {
-					throw new Error("Add-on quantity must be a positive integer.");
+			const addOns = (item.addOns || []).map((addOn) => {
+				// Negative quantity = removing servings; only zero is meaningless.
+				if (!Number.isInteger(addOn.quantity) || addOn.quantity === 0) {
+					throw new Error("Add-on quantity must be a non-zero integer.");
 				}
 
-				const ingredient = addOn.ingredientId
+				const ingredientRow = addOn.ingredientId
 					? tx
 							.select()
-							.from(ingredients)
-							.where(eq(ingredients.id, addOn.ingredientId))
+							.from(ingredient)
+							.where(eq(ingredient.id, addOn.ingredientId))
 							.get()
 					: tx
 							.select()
-							.from(ingredients)
-							.where(eq(ingredients.name, addOn.ingredientName))
+							.from(ingredient)
+							.where(eq(ingredient.name, addOn.ingredientName))
 							.get();
 
-				if (!ingredient) {
+				if (!ingredientRow) {
 					throw new Error("Selected add-on does not exist.");
 				}
 
-				if (ingredient.category !== "add-on" || ingredient.pricePerServing <= 0) {
+				if (
+					ingredientRow.category !== "add-on" ||
+					ingredientRow.pricePerServing <= 0
+				) {
 					throw new Error("Selected ingredient is not an available add-on.");
 				}
 
-				const subtotal = ingredient.pricePerServing * addOn.quantity;
-				addOnTotal += subtotal;
-				savedAddOns.push({ ingredient, quantity: addOn.quantity });
-			}
+				return { ingredient: ingredientRow, quantity: addOn.quantity };
+			});
 
-			const subtotal = recipeSize.basePrice + addOnTotal;
-			const savedItem = tx
-				.insert(orderItems)
+			const addOnTotal = addOns.reduce(
+				(sum, addOn) => sum + addOn.ingredient.pricePerServing * addOn.quantity,
+				0,
+			);
+			const subtotal =
+				Math.round((basePriceFor(recipeRow, item.size) + addOnTotal) * 100) /
+				100;
+
+			return { recipe: recipeRow, size: item.size, addOns, subtotal };
+		});
+
+		const total =
+			Math.round(
+				pricedItems.reduce((sum, item) => sum + item.subtotal, 0) * 100,
+			) / 100;
+
+		const savedTransaction = tx
+			.insert(transaction)
+			.values({
+				customerName: customerName.trim(),
+				staffId: cashierStaffId,
+				totalCost: total,
+			})
+			.returning({ txn: transaction.id })
+			.get();
+
+		for (const item of pricedItems) {
+			const savedMilkshake = tx
+				.insert(milkshake)
 				.values({
-					orderId: savedOrder.orderId,
-					recipeId: recipe.id,
-					size: item.size,
+					subtotal: item.subtotal,
+					txn: savedTransaction.txn,
+					ingredientId: item.recipe.ingredientId,
+					recipeId: item.recipe.id,
 				})
-				.returning({ orderItemId: orderItems.id })
+				.returning({ milkshakeId: milkshake.id })
 				.get();
 
-			for (const addOn of savedAddOns) {
-				tx.insert(orderItemAddOns)
+			tx.insert(milkshakeRecipe)
+				.values({
+					milkshakeId: savedMilkshake.milkshakeId,
+					recipeId: item.recipe.id,
+					milkshakeSize: item.size,
+				})
+				.run();
+
+			for (const addOn of item.addOns) {
+				tx.insert(customization)
 					.values({
-						orderItemId: savedItem.orderItemId,
+						milkshakeId: savedMilkshake.milkshakeId,
 						ingredientId: addOn.ingredient.id,
-						quantity: addOn.quantity,
+						customizationQty: addOn.quantity,
 					})
 					.run();
 			}
-
-			total += subtotal;
 		}
 
-		return { orderId: savedOrder.orderId, total };
+		return { orderId: savedTransaction.txn, total };
 	});
 }

@@ -2,36 +2,119 @@ import { db, sqlite } from './index.js';
 import {
   staff,
   schedules,
-  ingredients,
-  milkshakeRecipes,
-  recipeSizes,
-  recipeIngredientRequirements,
-  customerOrders,
-  transactionPreparers,
-  orderItems,
-  orderItemAddOns,
+  ingredient,
+  recipe,
+  recipeIngredient,
+  transaction,
+  milkshake,
+  milkshakeRecipe,
+  customization,
 } from './schema.js';
 
 function resetSequences() {
   sqlite
     .prepare(
-      "DELETE FROM sqlite_sequence WHERE name IN ('staff','schedules','ingredients','milkshake_recipes','recipe_sizes','customer_orders','order_items')",
+      "DELETE FROM sqlite_sequence WHERE name IN ('staff','schedules','ingredient','recipe','milkshake','transaction')",
     )
     .run();
 }
 
 const sizes = ['8oz', '12oz', '16oz'];
 
+const ingredientRows = [
+  { name: 'Milk', category: 'base', qtyOnHand: 10000, pricePerServing: 0 },
+  { name: 'Vanilla Ice Cream', category: 'base', qtyOnHand: 5000, pricePerServing: 0 },
+  { name: 'Chocolate Syrup', category: 'add-on', qtyOnHand: 3000, pricePerServing: 15 },
+  { name: 'Strawberries', category: 'add-on', qtyOnHand: 2000, pricePerServing: 20 },
+  { name: 'Mangoes', category: 'add-on', qtyOnHand: 3000, pricePerServing: 20 },
+  { name: 'Oreos', category: 'add-on', qtyOnHand: 1500, pricePerServing: 20 },
+  { name: 'Whipped Cream', category: 'add-on', qtyOnHand: 2000, pricePerServing: 15 },
+  { name: 'Sprinkles', category: 'add-on', qtyOnHand: 1000, pricePerServing: 10 },
+  { name: 'Caramel Sauce', category: 'add-on', qtyOnHand: 2500, pricePerServing: 20 },
+  { name: 'Banana', category: 'add-on', qtyOnHand: 2500, pricePerServing: 15 },
+];
+
+// base_price_8oz, then +20 per size step; ingredientId = the recipe's signature ingredient
+const recipeRows = [
+  { name: 'Chocolate Milkshake', price8oz: 120, ingredientId: 3 },
+  { name: 'Strawberry Milkshake', price8oz: 120, ingredientId: 4 },
+  { name: 'Vanilla Milkshake', price8oz: 100, ingredientId: 2 },
+  { name: 'Oreo Milkshake', price8oz: 130, ingredientId: 6 },
+  { name: 'Mango Milkshake', price8oz: 130, ingredientId: 5 },
+];
+
+// [ingredientId, qtyFor8oz] pairs per recipe; 12oz = 1.5x, 16oz = 2x
+const recipeRequirements = [
+  [[1, 200], [2, 150], [3, 50]],
+  [[1, 200], [2, 150], [4, 100]],
+  [[1, 200], [2, 200]],
+  [[1, 200], [2, 150], [6, 60]],
+  [[1, 200], [2, 150], [5, 120]],
+];
+
+// addOns: [ingredientId, qty] pairs
+const orders = [
+  {
+    customerName: 'John Smith',
+    staffId: 1,
+    shakes: [
+      { recipeId: 1, size: '12oz', addOns: [[7, 2]] },
+      { recipeId: 2, size: '8oz', addOns: [[8, 1]] },
+    ],
+  },
+  {
+    customerName: 'Bea Cruz',
+    staffId: 1,
+    shakes: [
+      { recipeId: 3, size: '16oz', addOns: [[7, 1], [8, 1]] },
+      { recipeId: 4, size: '12oz', addOns: [] },
+    ],
+  },
+  {
+    customerName: 'Carlos Rodriguez',
+    staffId: 3,
+    shakes: [
+      { recipeId: 5, size: '12oz', addOns: [[7, 1]] },
+      { recipeId: 5, size: '12oz', addOns: [[8, 1]] },
+      { recipeId: 1, size: '16oz', addOns: [] },
+    ],
+  },
+  {
+    customerName: 'Angela Davis',
+    staffId: 3,
+    shakes: [{ recipeId: 3, size: '12oz', addOns: [[9, 1]] }],
+  },
+  {
+    customerName: 'Robert Brown',
+    staffId: 5,
+    shakes: [
+      { recipeId: 4, size: '16oz', addOns: [[7, 1]] },
+      { recipeId: 2, size: '12oz', addOns: [[8, 1]] },
+    ],
+  },
+];
+
+function basePriceFor(recipeId, size) {
+  return recipeRows[recipeId - 1].price8oz + sizes.indexOf(size) * 20;
+}
+
+function shakeSubtotal(shake) {
+  const addOnTotal = shake.addOns.reduce(
+    (sum, [ingredientId, qty]) => sum + ingredientRows[ingredientId - 1].pricePerServing * qty,
+    0,
+  );
+  return basePriceFor(shake.recipeId, shake.size) + addOnTotal;
+}
+
 function seed() {
   const runSeed = sqlite.transaction(() => {
-    db.delete(orderItemAddOns).run();
-    db.delete(transactionPreparers).run();
-    db.delete(orderItems).run();
-    db.delete(customerOrders).run();
-    db.delete(recipeIngredientRequirements).run();
-    db.delete(recipeSizes).run();
-    db.delete(milkshakeRecipes).run();
-    db.delete(ingredients).run();
+    db.delete(customization).run();
+    db.delete(milkshakeRecipe).run();
+    db.delete(milkshake).run();
+    db.delete(transaction).run();
+    db.delete(recipeIngredient).run();
+    db.delete(recipe).run();
+    db.delete(ingredient).run();
     db.delete(schedules).run();
     db.delete(staff).run();
     resetSequences();
@@ -44,108 +127,74 @@ function seed() {
       { name: 'Ana Reyes' },
     ]).run();
 
+    const weekStart = new Date('2026-07-13');
+    const weekEnd = new Date('2026-07-19');
     db.insert(schedules).values([
-      { staffId: 1, role: 'cashier', startDate: '2026-07-13', endDate: '2026-07-19' },
-      { staffId: 2, role: 'preparer', startDate: '2026-07-13', endDate: '2026-07-19' },
-      { staffId: 3, role: 'cashier', startDate: '2026-07-13', endDate: '2026-07-19' },
-      { staffId: 4, role: 'preparer', startDate: '2026-07-13', endDate: '2026-07-19' },
-      { staffId: 5, role: 'cashier', startDate: '2026-07-13', endDate: '2026-07-19' },
+      { staffId: 1, role: 'cashier', startDate: weekStart, endDate: weekEnd },
+      { staffId: 2, role: 'preparer', startDate: weekStart, endDate: weekEnd },
+      { staffId: 3, role: 'cashier', startDate: weekStart, endDate: weekEnd },
+      { staffId: 4, role: 'preparer', startDate: weekStart, endDate: weekEnd },
+      { staffId: 5, role: 'cashier', startDate: weekStart, endDate: weekEnd },
     ]).run();
 
-    db.insert(ingredients).values([
-      { name: 'Milk', category: 'base', qtyOnHand: 10000, pricePerServing: 0 },
-      { name: 'Vanilla Ice Cream', category: 'base', qtyOnHand: 5000, pricePerServing: 0 },
-      { name: 'Chocolate Syrup', category: 'add-on', qtyOnHand: 3000, pricePerServing: 15 },
-      { name: 'Strawberries', category: 'add-on', qtyOnHand: 2000, pricePerServing: 20 },
-      { name: 'Mangoes', category: 'add-on', qtyOnHand: 3000, pricePerServing: 20 },
-      { name: 'Oreos', category: 'add-on', qtyOnHand: 1500, pricePerServing: 20 },
-      { name: 'Whipped Cream', category: 'add-on', qtyOnHand: 2000, pricePerServing: 15 },
-      { name: 'Sprinkles', category: 'add-on', qtyOnHand: 1000, pricePerServing: 10 },
-      { name: 'Caramel Sauce', category: 'add-on', qtyOnHand: 2500, pricePerServing: 20 },
-      { name: 'Banana', category: 'add-on', qtyOnHand: 2500, pricePerServing: 15 },
-    ]).run();
+    db.insert(ingredient).values(ingredientRows).run();
 
-    db.insert(milkshakeRecipes).values([
-      { name: 'Chocolate Milkshake' },
-      { name: 'Strawberry Milkshake' },
-      { name: 'Vanilla Milkshake' },
-      { name: 'Oreo Milkshake' },
-      { name: 'Mango Milkshake' },
-    ]).run();
+    db.insert(recipe).values(
+      recipeRows.map((r) => ({
+        name: r.name,
+        basePrice8oz: r.price8oz,
+        basePrice12oz: r.price8oz + 20,
+        basePrice16oz: r.price8oz + 40,
+        ingredientId: r.ingredientId,
+      })),
+    ).run();
 
-    const recipePrices = [120, 120, 100, 130, 130];
-    db.insert(recipeSizes).values(
-      recipePrices.flatMap((basePrice, recipeId) =>
-        sizes.map((size, sizeIndex) => ({
-          recipeId: recipeId + 1,
-          size,
-          basePrice: basePrice + sizeIndex * 20,
+    db.insert(recipeIngredient).values(
+      recipeRequirements.flatMap((pairs, recipeIndex) =>
+        pairs.map(([ingredientId, qty]) => ({
+          recipeId: recipeIndex + 1,
+          ingredientId,
+          neededQty8oz: qty,
+          neededQty12oz: qty * 1.5,
+          neededQty16oz: qty * 2,
         })),
       ),
     ).run();
 
-    const baseRequirements = [
-      [1, 200, 2, 150, 3, 50],
-      [1, 200, 2, 150, 4, 100],
-      [1, 200, 2, 200],
-      [1, 200, 2, 150, 6, 60],
-      [1, 200, 2, 150, 5, 120],
-    ];
-    const requirements = [];
-    baseRequirements.forEach((recipeRequirements, recipeIndex) => {
-      for (const size of sizes) {
-        for (let i = 0; i < recipeRequirements.length; i += 2) {
-          requirements.push({
-            recipeId: recipeIndex + 1,
-            ingredientId: recipeRequirements[i],
-            size,
-            neededQty: recipeRequirements[i + 1],
-          });
+    db.insert(transaction).values(
+      orders.map((order) => ({
+        customerName: order.customerName,
+        staffId: order.staffId,
+        totalCost: order.shakes.reduce((sum, shake) => sum + shakeSubtotal(shake), 0),
+      })),
+    ).run();
+
+    let milkshakeId = 0;
+    orders.forEach((order, orderIndex) => {
+      for (const shake of order.shakes) {
+        milkshakeId += 1;
+        db.insert(milkshake).values({
+          subtotal: shakeSubtotal(shake),
+          txn: orderIndex + 1,
+          ingredientId: recipeRows[shake.recipeId - 1].ingredientId,
+          recipeId: shake.recipeId,
+        }).run();
+
+        db.insert(milkshakeRecipe).values({
+          milkshakeId,
+          recipeId: shake.recipeId,
+          milkshakeSize: shake.size,
+        }).run();
+
+        for (const [ingredientId, qty] of shake.addOns) {
+          db.insert(customization).values({
+            milkshakeId,
+            ingredientId,
+            customizationQty: qty,
+          }).run();
         }
       }
     });
-    db.insert(recipeIngredientRequirements).values(requirements).run();
-
-    db.insert(customerOrders).values([
-      { customerName: 'John Smith', cashierStaffId: 1 },
-      { customerName: 'Bea Cruz', cashierStaffId: 1 },
-      { customerName: 'Carlos Rodriguez', cashierStaffId: 3 },
-      { customerName: 'Angela Davis', cashierStaffId: 3 },
-      { customerName: 'Robert Brown', cashierStaffId: 5 },
-    ]).run();
-
-    db.insert(transactionPreparers).values([
-      { transactionId: 1, staffId: 2 },
-      { transactionId: 1, staffId: 4 },
-      { transactionId: 2, staffId: 2 },
-      { transactionId: 3, staffId: 4 },
-      { transactionId: 4, staffId: 2 },
-    ]).run();
-
-    db.insert(orderItems).values([
-      { orderId: 1, recipeId: 1, size: '12oz' },
-      { orderId: 1, recipeId: 2, size: '8oz' },
-      { orderId: 2, recipeId: 3, size: '16oz' },
-      { orderId: 2, recipeId: 4, size: '12oz' },
-      { orderId: 3, recipeId: 5, size: '12oz' },
-      { orderId: 3, recipeId: 5, size: '12oz' },
-      { orderId: 3, recipeId: 1, size: '16oz' },
-      { orderId: 4, recipeId: 3, size: '12oz' },
-      { orderId: 5, recipeId: 4, size: '16oz' },
-      { orderId: 5, recipeId: 2, size: '12oz' },
-    ]).run();
-
-    db.insert(orderItemAddOns).values([
-      { orderItemId: 1, ingredientId: 7, quantity: 2 },
-      { orderItemId: 2, ingredientId: 8, quantity: 1 },
-      { orderItemId: 3, ingredientId: 7, quantity: 1 },
-      { orderItemId: 3, ingredientId: 8, quantity: 1 },
-      { orderItemId: 5, ingredientId: 7, quantity: 1 },
-      { orderItemId: 6, ingredientId: 8, quantity: 1 },
-      { orderItemId: 8, ingredientId: 9, quantity: 1 },
-      { orderItemId: 9, ingredientId: 7, quantity: 1 },
-      { orderItemId: 10, ingredientId: 8, quantity: 1 },
-    ]).run();
   });
 
   try {

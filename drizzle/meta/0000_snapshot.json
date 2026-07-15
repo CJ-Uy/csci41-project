@@ -1,168 +1,14 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "bba9f140-7537-4edf-ab41-587aaa5c1077",
+  "id": "d39700e8-23dc-4816-a6d5-f29ab341041c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "customer_orders": {
-      "name": "customer_orders",
+    "customization": {
+      "name": "customization",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "customer_name": {
-          "name": "customer_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "cashier_staff_id": {
-          "name": "cashier_staff_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "customer_orders_cashier_staff_id_staff_id_fk": {
-          "name": "customer_orders_cashier_staff_id_staff_id_fk",
-          "tableFrom": "customer_orders",
-          "tableTo": "staff",
-          "columnsFrom": [
-            "cashier_staff_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {
-        "customer_orders_name_check": {
-          "name": "customer_orders_name_check",
-          "value": "length(trim(\"customer_orders\".\"customer_name\")) > 0"
-        }
-      }
-    },
-    "ingredients": {
-      "name": "ingredients",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "category": {
-          "name": "category",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "qty_on_hand": {
-          "name": "qty_on_hand",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "price_per_serving": {
-          "name": "price_per_serving",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        }
-      },
-      "indexes": {
-        "ingredients_name_unique": {
-          "name": "ingredients_name_unique",
-          "columns": [
-            "name"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {
-        "ingredients_qty_on_hand_check": {
-          "name": "ingredients_qty_on_hand_check",
-          "value": "\"ingredients\".\"qty_on_hand\" >= 0"
-        },
-        "ingredients_price_per_serving_check": {
-          "name": "ingredients_price_per_serving_check",
-          "value": "\"ingredients\".\"price_per_serving\" >= 0"
-        }
-      }
-    },
-    "milkshake_recipes": {
-      "name": "milkshake_recipes",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "milkshake_recipes_name_unique": {
-          "name": "milkshake_recipes_name_unique",
-          "columns": [
-            "name"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "order_item_add_ons": {
-      "name": "order_item_add_ons",
-      "columns": {
-        "order_item_id": {
-          "name": "order_item_id",
+        "milkshake_id": {
+          "name": "milkshake_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -185,62 +31,215 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "order_item_add_ons_order_item_id_order_items_id_fk": {
-          "name": "order_item_add_ons_order_item_id_order_items_id_fk",
-          "tableFrom": "order_item_add_ons",
-          "tableTo": "order_items",
+        "customization_milkshake_id_milkshake_milkshake_id_fk": {
+          "name": "customization_milkshake_id_milkshake_milkshake_id_fk",
+          "tableFrom": "customization",
+          "tableTo": "milkshake",
           "columnsFrom": [
-            "order_item_id"
+            "milkshake_id"
           ],
           "columnsTo": [
-            "id"
+            "milkshake_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "order_item_add_ons_ingredient_id_ingredients_id_fk": {
-          "name": "order_item_add_ons_ingredient_id_ingredients_id_fk",
-          "tableFrom": "order_item_add_ons",
-          "tableTo": "ingredients",
+        "customization_ingredient_id_ingredient_ingredient_id_fk": {
+          "name": "customization_ingredient_id_ingredient_ingredient_id_fk",
+          "tableFrom": "customization",
+          "tableTo": "ingredient",
           "columnsFrom": [
             "ingredient_id"
           ],
           "columnsTo": [
-            "id"
+            "ingredient_id"
           ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
-        "order_item_add_ons_order_item_id_ingredient_id_pk": {
+        "customization_milkshake_id_ingredient_id_pk": {
           "columns": [
-            "order_item_id",
+            "milkshake_id",
             "ingredient_id"
           ],
-          "name": "order_item_add_ons_order_item_id_ingredient_id_pk"
+          "name": "customization_milkshake_id_ingredient_id_pk"
         }
       },
       "uniqueConstraints": {},
       "checkConstraints": {
-        "order_item_add_ons_quantity_check": {
-          "name": "order_item_add_ons_quantity_check",
-          "value": "\"order_item_add_ons\".\"customization_qty\" > 0"
+        "customization_qty_nonzero_check": {
+          "name": "customization_qty_nonzero_check",
+          "value": "\"customization\".\"customization_qty\" != 0"
         }
       }
     },
-    "order_items": {
-      "name": "order_items",
+    "ingredient": {
+      "name": "ingredient",
       "columns": {
-        "id": {
-          "name": "id",
+        "ingredient_id": {
+          "name": "ingredient_id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
         },
-        "order_id": {
-          "name": "order_id",
+        "ingredient_name": {
+          "name": "ingredient_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "qty_on_hand": {
+          "name": "qty_on_hand",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "price_per_serving": {
+          "name": "price_per_serving",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "ingredient_name_check": {
+          "name": "ingredient_name_check",
+          "value": "length(trim(\"ingredient\".\"ingredient_name\")) > 0"
+        },
+        "ingredient_category_check": {
+          "name": "ingredient_category_check",
+          "value": "length(trim(\"ingredient\".\"category\")) > 0"
+        },
+        "ingredient_qty_nonneg_check": {
+          "name": "ingredient_qty_nonneg_check",
+          "value": "\"ingredient\".\"qty_on_hand\" >= 0"
+        },
+        "ingredient_price_scale_check": {
+          "name": "ingredient_price_scale_check",
+          "value": "\"ingredient\".\"price_per_serving\" = ROUND(\"ingredient\".\"price_per_serving\", 2)"
+        },
+        "ingredient_price_nonneg_check": {
+          "name": "ingredient_price_nonneg_check",
+          "value": "\"ingredient\".\"price_per_serving\" >= 0"
+        }
+      }
+    },
+    "milkshake": {
+      "name": "milkshake",
+      "columns": {
+        "milkshake_id": {
+          "name": "milkshake_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "milkshake_subtotal": {
+          "name": "milkshake_subtotal",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "txn": {
+          "name": "txn",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ingredient_id": {
+          "name": "ingredient_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recipe_id": {
+          "name": "recipe_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "milkshake_txn_transaction_txn_fk": {
+          "name": "milkshake_txn_transaction_txn_fk",
+          "tableFrom": "milkshake",
+          "tableTo": "transaction",
+          "columnsFrom": [
+            "txn"
+          ],
+          "columnsTo": [
+            "txn"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "milkshake_ingredient_id_ingredient_ingredient_id_fk": {
+          "name": "milkshake_ingredient_id_ingredient_ingredient_id_fk",
+          "tableFrom": "milkshake",
+          "tableTo": "ingredient",
+          "columnsFrom": [
+            "ingredient_id"
+          ],
+          "columnsTo": [
+            "ingredient_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "milkshake_recipe_id_recipe_recipe_id_fk": {
+          "name": "milkshake_recipe_id_recipe_recipe_id_fk",
+          "tableFrom": "milkshake",
+          "tableTo": "recipe",
+          "columnsFrom": [
+            "recipe_id"
+          ],
+          "columnsTo": [
+            "recipe_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "milkshake_subtotal_scale_check": {
+          "name": "milkshake_subtotal_scale_check",
+          "value": "\"milkshake\".\"milkshake_subtotal\" = ROUND(\"milkshake\".\"milkshake_subtotal\", 2)"
+        },
+        "milkshake_subtotal_nonneg_check": {
+          "name": "milkshake_subtotal_nonneg_check",
+          "value": "\"milkshake\".\"milkshake_subtotal\" >= 0"
+        }
+      }
+    },
+    "milkshake_recipe": {
+      "name": "milkshake_recipe",
+      "columns": {
+        "milkshake_id": {
+          "name": "milkshake_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -263,41 +262,131 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "order_items_order_id_customer_orders_id_fk": {
-          "name": "order_items_order_id_customer_orders_id_fk",
-          "tableFrom": "order_items",
-          "tableTo": "customer_orders",
+        "milkshake_recipe_milkshake_id_milkshake_milkshake_id_fk": {
+          "name": "milkshake_recipe_milkshake_id_milkshake_milkshake_id_fk",
+          "tableFrom": "milkshake_recipe",
+          "tableTo": "milkshake",
           "columnsFrom": [
-            "order_id"
+            "milkshake_id"
           ],
           "columnsTo": [
-            "id"
+            "milkshake_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "order_items_recipe_size_fk": {
-          "name": "order_items_recipe_size_fk",
-          "tableFrom": "order_items",
-          "tableTo": "recipe_sizes",
+        "milkshake_recipe_recipe_id_recipe_recipe_id_fk": {
+          "name": "milkshake_recipe_recipe_id_recipe_recipe_id_fk",
+          "tableFrom": "milkshake_recipe",
+          "tableTo": "recipe",
           "columnsFrom": [
-            "recipe_id",
-            "milkshake_size"
+            "recipe_id"
           ],
           "columnsTo": [
-            "recipe_id",
-            "milkshake_size"
+            "recipe_id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "milkshake_recipe_milkshake_id_recipe_id_pk": {
+          "columns": [
+            "milkshake_id",
+            "recipe_id"
+          ],
+          "name": "milkshake_recipe_milkshake_id_recipe_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "milkshake_recipe_size_check": {
+          "name": "milkshake_recipe_size_check",
+          "value": "\"milkshake_recipe\".\"milkshake_size\" IN ('8oz', '12oz', '16oz')"
+        }
+      }
+    },
+    "recipe": {
+      "name": "recipe",
+      "columns": {
+        "recipe_id": {
+          "name": "recipe_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "recipe_name": {
+          "name": "recipe_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "base_price_8oz": {
+          "name": "base_price_8oz",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "base_price_12oz": {
+          "name": "base_price_12oz",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "base_price_16oz": {
+          "name": "base_price_16oz",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ingredient_id": {
+          "name": "ingredient_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recipe_ingredient_id_ingredient_ingredient_id_fk": {
+          "name": "recipe_ingredient_id_ingredient_ingredient_id_fk",
+          "tableFrom": "recipe",
+          "tableTo": "ingredient",
+          "columnsFrom": [
+            "ingredient_id"
+          ],
+          "columnsTo": [
+            "ingredient_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "recipe_name_check": {
+          "name": "recipe_name_check",
+          "value": "length(trim(\"recipe\".\"recipe_name\")) > 0"
+        },
+        "recipe_base_price_scale_check": {
+          "name": "recipe_base_price_scale_check",
+          "value": "\"recipe\".\"base_price_8oz\" = ROUND(\"recipe\".\"base_price_8oz\", 2) AND \"recipe\".\"base_price_12oz\" = ROUND(\"recipe\".\"base_price_12oz\", 2) AND \"recipe\".\"base_price_16oz\" = ROUND(\"recipe\".\"base_price_16oz\", 2)"
+        },
+        "recipe_base_price_nonneg_check": {
+          "name": "recipe_base_price_nonneg_check",
+          "value": "\"recipe\".\"base_price_8oz\" >= 0 AND \"recipe\".\"base_price_12oz\" >= 0 AND \"recipe\".\"base_price_16oz\" >= 0"
+        }
+      }
     },
-    "recipe_ingredient_requirements": {
-      "name": "recipe_ingredient_requirements",
+    "recipe_ingredient": {
+      "name": "recipe_ingredient",
       "columns": {
         "recipe_id": {
           "name": "recipe_id",
@@ -313,15 +402,22 @@
           "notNull": true,
           "autoincrement": false
         },
-        "milkshake_size": {
-          "name": "milkshake_size",
-          "type": "text",
+        "needed_qty_8oz": {
+          "name": "needed_qty_8oz",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "needed_qty": {
-          "name": "needed_qty",
+        "needed_qty_12oz": {
+          "name": "needed_qty_12oz",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "needed_qty_16oz": {
+          "name": "needed_qty_16oz",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -330,131 +426,59 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "recipe_ingredient_requirements_ingredient_id_ingredients_id_fk": {
-          "name": "recipe_ingredient_requirements_ingredient_id_ingredients_id_fk",
-          "tableFrom": "recipe_ingredient_requirements",
-          "tableTo": "ingredients",
-          "columnsFrom": [
-            "ingredient_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
-          "onUpdate": "cascade"
-        },
-        "recipe_requirements_recipe_size_fk": {
-          "name": "recipe_requirements_recipe_size_fk",
-          "tableFrom": "recipe_ingredient_requirements",
-          "tableTo": "recipe_sizes",
-          "columnsFrom": [
-            "recipe_id",
-            "milkshake_size"
-          ],
-          "columnsTo": [
-            "recipe_id",
-            "milkshake_size"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "recipe_ingredient_requirements_recipe_id_ingredient_id_milkshake_size_pk": {
-          "columns": [
-            "recipe_id",
-            "ingredient_id",
-            "milkshake_size"
-          ],
-          "name": "recipe_ingredient_requirements_recipe_id_ingredient_id_milkshake_size_pk"
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraints": {
-        "recipe_requirements_needed_qty_check": {
-          "name": "recipe_requirements_needed_qty_check",
-          "value": "\"recipe_ingredient_requirements\".\"needed_qty\" >= 0"
-        }
-      }
-    },
-    "recipe_sizes": {
-      "name": "recipe_sizes",
-      "columns": {
-        "recipe_id": {
-          "name": "recipe_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "milkshake_size": {
-          "name": "milkshake_size",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "base_price": {
-          "name": "base_price",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "recipe_sizes_recipe_id_milkshake_recipes_id_fk": {
-          "name": "recipe_sizes_recipe_id_milkshake_recipes_id_fk",
-          "tableFrom": "recipe_sizes",
-          "tableTo": "milkshake_recipes",
+        "recipe_ingredient_recipe_id_recipe_recipe_id_fk": {
+          "name": "recipe_ingredient_recipe_id_recipe_recipe_id_fk",
+          "tableFrom": "recipe_ingredient",
+          "tableTo": "recipe",
           "columnsFrom": [
             "recipe_id"
           ],
           "columnsTo": [
-            "id"
+            "recipe_id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "recipe_ingredient_ingredient_id_ingredient_ingredient_id_fk": {
+          "name": "recipe_ingredient_ingredient_id_ingredient_ingredient_id_fk",
+          "tableFrom": "recipe_ingredient",
+          "tableTo": "ingredient",
+          "columnsFrom": [
+            "ingredient_id"
+          ],
+          "columnsTo": [
+            "ingredient_id"
+          ],
+          "onDelete": "restrict",
           "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {
-        "recipe_sizes_recipe_id_milkshake_size_pk": {
+        "recipe_ingredient_recipe_id_ingredient_id_pk": {
           "columns": [
             "recipe_id",
-            "milkshake_size"
+            "ingredient_id"
           ],
-          "name": "recipe_sizes_recipe_id_milkshake_size_pk"
+          "name": "recipe_ingredient_recipe_id_ingredient_id_pk"
         }
       },
       "uniqueConstraints": {},
       "checkConstraints": {
-        "recipe_sizes_size_check": {
-          "name": "recipe_sizes_size_check",
-          "value": "\"recipe_sizes\".\"milkshake_size\" IN ('8oz', '12oz', '16oz')"
-        },
-        "recipe_sizes_base_price_check": {
-          "name": "recipe_sizes_base_price_check",
-          "value": "\"recipe_sizes\".\"base_price\" >= 0"
+        "recipe_ingredient_qty_positive_check": {
+          "name": "recipe_ingredient_qty_positive_check",
+          "value": "\"recipe_ingredient\".\"needed_qty_8oz\" > 0 AND \"recipe_ingredient\".\"needed_qty_12oz\" > 0 AND \"recipe_ingredient\".\"needed_qty_16oz\" > 0"
         }
       }
     },
     "schedules": {
       "name": "schedules",
       "columns": {
-        "id": {
-          "name": "id",
+        "schedule_id": {
+          "name": "schedule_id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
-        },
-        "staff_id": {
-          "name": "staff_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         },
         "role": {
           "name": "role",
@@ -465,14 +489,21 @@
         },
         "start_date": {
           "name": "start_date",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "end_date": {
           "name": "end_date",
-          "type": "text",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "staff_id": {
+          "name": "staff_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -480,15 +511,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "schedules_staff_id_staff_id_fk": {
-          "name": "schedules_staff_id_staff_id_fk",
+        "schedules_staff_id_staff_staff_id_fk": {
+          "name": "schedules_staff_id_staff_staff_id_fk",
           "tableFrom": "schedules",
           "tableTo": "staff",
           "columnsFrom": [
             "staff_id"
           ],
           "columnsTo": [
-            "id"
+            "staff_id"
           ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
@@ -499,7 +530,7 @@
       "checkConstraints": {
         "schedules_role_check": {
           "name": "schedules_role_check",
-          "value": "\"schedules\".\"role\" IN ('cashier', 'preparer')"
+          "value": "\"schedules\".\"role\" IN ('cashier', 'preparer', 'cleaning')"
         },
         "schedules_date_check": {
           "name": "schedules_date_check",
@@ -510,15 +541,15 @@
     "staff": {
       "name": "staff",
       "columns": {
-        "id": {
-          "name": "id",
+        "staff_id": {
+          "name": "staff_id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
         },
-        "name": {
-          "name": "name",
+        "staff_name": {
+          "name": "staff_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -529,14 +560,41 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "staff_name_check": {
+          "name": "staff_name_check",
+          "value": "length(trim(\"staff\".\"staff_name\")) > 0"
+        }
+      }
     },
-    "transaction_preparers": {
-      "name": "transaction_preparers",
+    "transaction": {
+      "name": "transaction",
       "columns": {
-        "transaction_id": {
-          "name": "transaction_id",
+        "txn": {
+          "name": "txn",
           "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "customer_name": {
+          "name": "customer_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "date": {
+          "name": "date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "total_cost": {
+          "name": "total_cost",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -551,44 +609,36 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "transaction_preparers_transaction_id_customer_orders_id_fk": {
-          "name": "transaction_preparers_transaction_id_customer_orders_id_fk",
-          "tableFrom": "transaction_preparers",
-          "tableTo": "customer_orders",
-          "columnsFrom": [
-            "transaction_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "transaction_preparers_staff_id_staff_id_fk": {
-          "name": "transaction_preparers_staff_id_staff_id_fk",
-          "tableFrom": "transaction_preparers",
+        "transaction_staff_id_staff_staff_id_fk": {
+          "name": "transaction_staff_id_staff_staff_id_fk",
+          "tableFrom": "transaction",
           "tableTo": "staff",
           "columnsFrom": [
             "staff_id"
           ],
           "columnsTo": [
-            "id"
+            "staff_id"
           ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
       },
-      "compositePrimaryKeys": {
-        "transaction_preparers_transaction_id_staff_id_pk": {
-          "columns": [
-            "transaction_id",
-            "staff_id"
-          ],
-          "name": "transaction_preparers_transaction_id_staff_id_pk"
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "transaction_total_cost_scale_check": {
+          "name": "transaction_total_cost_scale_check",
+          "value": "\"transaction\".\"total_cost\" = ROUND(\"transaction\".\"total_cost\", 2)"
+        },
+        "transaction_total_cost_nonneg_check": {
+          "name": "transaction_total_cost_nonneg_check",
+          "value": "\"transaction\".\"total_cost\" >= 0"
+        },
+        "customer_orders_name_check": {
+          "name": "customer_orders_name_check",
+          "value": "length(trim(\"transaction\".\"customer_name\")) > 0"
+        }
+      }
     }
   },
   "views": {},
