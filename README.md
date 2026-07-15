@@ -28,7 +28,7 @@ npm run db:seed
 To run the full project run:
 
 ```bash
-node server.js
+npm run start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in the browser.
