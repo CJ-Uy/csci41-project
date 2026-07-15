@@ -101,14 +101,14 @@ const recipeRequirements = [
 	],
 ];
 
-// addOns: [ingredientId, qty] pairs
+// customizations: [ingredientId, qty] pairs
 const orders = [
 	{
 		customerName: "John Smith",
 		staffId: 1,
 		shakes: [
-			{ recipeId: 1, size: "12oz", addOns: [[7, 2]] },
-			{ recipeId: 2, size: "8oz", addOns: [[8, 1]] },
+			{ recipeId: 1, size: "12oz", customizations: [[7, 2]] },
+			{ recipeId: 2, size: "8oz", customizations: [[8, 1]] },
 		],
 	},
 	{
@@ -118,34 +118,34 @@ const orders = [
 			{
 				recipeId: 3,
 				size: "16oz",
-				addOns: [
+				customizations: [
 					[7, 1],
 					[8, 1],
 				],
 			},
-			{ recipeId: 4, size: "12oz", addOns: [] },
+			{ recipeId: 4, size: "12oz", customizations: [] },
 		],
 	},
 	{
 		customerName: "Carlos Rodriguez",
 		staffId: 3,
 		shakes: [
-			{ recipeId: 5, size: "12oz", addOns: [[7, 1]] },
-			{ recipeId: 5, size: "12oz", addOns: [[8, 1]] },
-			{ recipeId: 1, size: "16oz", addOns: [] },
+			{ recipeId: 5, size: "12oz", customizations: [[7, 1]] },
+			{ recipeId: 5, size: "12oz", customizations: [[8, 1]] },
+			{ recipeId: 1, size: "16oz", customizations: [] },
 		],
 	},
 	{
 		customerName: "Angela Davis",
 		staffId: 3,
-		shakes: [{ recipeId: 3, size: "12oz", addOns: [[9, 1]] }],
+		shakes: [{ recipeId: 3, size: "12oz", customizations: [[9, 1]] }],
 	},
 	{
 		customerName: "Robert Brown",
 		staffId: 5,
 		shakes: [
-			{ recipeId: 4, size: "16oz", addOns: [[7, 1]] },
-			{ recipeId: 2, size: "12oz", addOns: [[8, 1]] },
+			{ recipeId: 4, size: "16oz", customizations: [[7, 1]] },
+			{ recipeId: 2, size: "12oz", customizations: [[8, 1]] },
 		],
 	},
 ];
@@ -155,12 +155,12 @@ function basePriceFor(recipeId, size) {
 }
 
 function shakeSubtotal(shake) {
-	const addOnTotal = shake.addOns.reduce(
+	const customizationTotal = shake.customizations.reduce(
 		(sum, [ingredientId, qty]) =>
 			sum + ingredientRows[ingredientId - 1].pricePerServing * qty,
 		0,
 	);
-	return basePriceFor(shake.recipeId, shake.size) + addOnTotal;
+	return basePriceFor(shake.recipeId, shake.size) + customizationTotal;
 }
 
 function seed() {
@@ -270,7 +270,7 @@ function seed() {
 					})
 					.run();
 
-				for (const [ingredientId, qty] of shake.addOns) {
+				for (const [ingredientId, qty] of shake.customizations) {
 					db.insert(customization)
 						.values({
 							milkshakeId,

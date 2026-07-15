@@ -37,18 +37,18 @@
 						<span>Base price</span>
 						<span class="line-price">&#8369;<%= item.basePrice.toFixed(2) %></span>
 					</li>
-					<% item.addOns.forEach(function (addOn) { %>
+					<% item.customizations.forEach(function (customization) { %>
 					<li class="receipt-line">
 						<span>
-							<span class="qty-badge <%= addOn.quantity < 0 ? 'qty-removed' : '' %>">
-								<%= addOn.quantity > 0 ? "+" + addOn.quantity : addOn.quantity %>
+							<span class="qty-badge <%= customization.quantity < 0 ? 'qty-removed' : '' %>">
+								<%= customization.quantity > 0 ? "+" + customization.quantity : customization.quantity %>
 							</span>
-							<%= addOn.name %>
+							<%= customization.name %>
 						</span>
-						<span class="line-price <%= addOn.lineTotal < 0 ? 'line-refund' : '' %>">
-							<%= addOn.lineTotal < 0
-								? "(₱" + Math.abs(addOn.lineTotal).toFixed(2) + ")"
-								: "₱" + addOn.lineTotal.toFixed(2) %>
+						<span class="line-price <%= customization.lineTotal < 0 ? 'line-refund' : '' %>">
+							<%= customization.lineTotal < 0
+								? "(₱" + Math.abs(customization.lineTotal).toFixed(2) + ")"
+								: "₱" + customization.lineTotal.toFixed(2) %>
 						</span>
 					</li>
 					<% }); %>

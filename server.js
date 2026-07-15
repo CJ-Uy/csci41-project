@@ -32,16 +32,18 @@ app.post("/", (req, res) => {
 			customerName: req.body.customer_name,
 			cashierStaffId: Number(req.body.cashier_staff_id),
 			items: recipes.map((recipeName, index) => {
-				const addOnNames = asList(customizations[index]);
-				const addOnQuantities = asList(quantities[index]);
+				const customizationNames = asList(customizations[index]);
+				const customizationQuantities = asList(quantities[index]);
 
 				return {
 					recipeName,
 					size: sizes[index],
-					addOns: addOnNames.map((ingredientName, addOnIndex) => ({
-						ingredientName,
-						quantity: Number(addOnQuantities[addOnIndex]),
-					})),
+					customizations: customizationNames.map(
+						(ingredientName, customizationIndex) => ({
+							ingredientName,
+							quantity: Number(customizationQuantities[customizationIndex]),
+						}),
+					),
 				};
 			}),
 		});

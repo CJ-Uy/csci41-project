@@ -64,42 +64,56 @@ export function createOrder(orderData) {
 				throw new Error("Selected milkshake recipe does not exist.");
 			}
 
-			const addOns = (item.addOns || []).map((addOn) => {
-				// Negative quantity = removing servings; only zero is meaningless.
-				if (!Number.isInteger(addOn.quantity) || addOn.quantity === 0) {
-					throw new Error("Add-on quantity must be a non-zero integer.");
-				}
+			const customizations = (item.customizations || []).map(
+				(customizationItem) => {
+					// Negative quantity = removing servings; only zero is meaningless.
+					if (
+						!Number.isInteger(customizationItem.quantity) ||
+						customizationItem.quantity === 0
+					) {
+						throw new Error(
+							"Customization quantity must be a non-zero integer.",
+						);
+					}
 
-				const ingredientRow = addOn.ingredientId
-					? tx
-							.select()
-							.from(ingredient)
-							.where(eq(ingredient.id, addOn.ingredientId))
-							.get()
-					: tx
-							.select()
-							.from(ingredient)
-							.where(eq(ingredient.name, addOn.ingredientName))
-							.get();
+					const ingredientRow = customizationItem.ingredientId
+						? tx
+								.select()
+								.from(ingredient)
+								.where(eq(ingredient.id, customizationItem.ingredientId))
+								.get()
+						: tx
+								.select()
+								.from(ingredient)
+								.where(eq(ingredient.name, customizationItem.ingredientName))
+								.get();
 
-				if (!ingredientRow) {
-					throw new Error("Selected add-on does not exist.");
-				}
+					if (!ingredientRow) {
+						throw new Error("Selected customization does not exist.");
+					}
 
-				return { ingredient: ingredientRow, quantity: addOn.quantity };
-			});
+					return {
+						ingredient: ingredientRow,
+						quantity: customizationItem.quantity,
+					};
+				},
+			);
 
 			// Removals (negative quantity) refund their per-serving price,
 			// matching the spec receipt, e.g. "--- whipped cream (10.00)".
-			const addOnTotal = addOns.reduce(
-				(sum, addOn) => sum + addOn.ingredient.pricePerServing * addOn.quantity,
+			const customizationTotal = customizations.reduce(
+				(sum, customizationItem) =>
+					sum +
+					customizationItem.ingredient.pricePerServing *
+						customizationItem.quantity,
 				0,
 			);
 			const subtotal =
-				Math.round((basePriceFor(recipeRow, item.size) + addOnTotal) * 100) /
-				100;
+				Math.round(
+					(basePriceFor(recipeRow, item.size) + customizationTotal) * 100,
+				) / 100;
 
-			return { recipe: recipeRow, size: item.size, addOns, subtotal };
+			return { recipe: recipeRow, size: item.size, customizations, subtotal };
 		});
 
 		const total =
@@ -137,12 +151,12 @@ export function createOrder(orderData) {
 				})
 				.run();
 
-			for (const addOn of item.addOns) {
+			for (const customizationItem of item.customizations) {
 				tx.insert(customization)
 					.values({
 						milkshakeId: savedMilkshake.milkshakeId,
-						ingredientId: addOn.ingredient.id,
-						customizationQty: addOn.quantity,
+						ingredientId: customizationItem.ingredient.id,
+						customizationQty: customizationItem.quantity,
 					})
 					.run();
 			}
@@ -159,12 +173,15 @@ export function createOrder(orderData) {
 				size: item.size,
 				basePrice: basePriceFor(item.recipe, item.size),
 				subtotal: item.subtotal,
-				addOns: item.addOns.map((addOn) => ({
-					name: addOn.ingredient.name,
-					quantity: addOn.quantity,
+				customizations: item.customizations.map((customizationItem) => ({
+					name: customizationItem.ingredient.name,
+					quantity: customizationItem.quantity,
 					lineTotal:
-						Math.round(addOn.ingredient.pricePerServing * addOn.quantity * 100) /
-						100,
+						Math.round(
+							customizationItem.ingredient.pricePerServing *
+								customizationItem.quantity *
+								100,
+						) / 100,
 				})),
 			})),
 		};

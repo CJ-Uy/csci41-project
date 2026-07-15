@@ -14,10 +14,10 @@ export function getMenu() {
 	}
 
 	// Any ingredient can be added to (or removed from) a shake.
-	const addOns = {};
+	const customizations = {};
 	for (const row of db.select().from(ingredient).all()) {
-		addOns[row.name] = row.pricePerServing;
+		customizations[row.name] = row.pricePerServing;
 	}
 
-	return { recipes, addOns };
+	return { recipes, customizations };
 }

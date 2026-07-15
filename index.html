@@ -106,7 +106,7 @@
 
 			let milkshakeCount = 1; // index 0 is the block already in the page
 
-			let menu = null; // { recipes: { name: { "8oz": price, ... } }, addOns: { name: price } }
+			let menu = null; // { recipes: { name: { "8oz": price, ... } }, customizations: { name: price } }
 			fetch("/menu")
 				.then((res) => res.json())
 				.then((data) => {
@@ -136,7 +136,7 @@
 					const select = row.querySelector("select");
 					if (!select) continue; // header and empty-state rows
 
-					const price = menu.addOns[select.value];
+					const price = menu.customizations[select.value];
 					const qty = Number(row.querySelector('input[type="number"]').value);
 					// price can legitimately be 0 (e.g. extra milk), so only
 					// an unknown ingredient is invalid.
