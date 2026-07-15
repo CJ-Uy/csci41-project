@@ -86,16 +86,11 @@ export function createOrder(orderData) {
 					throw new Error("Selected add-on does not exist.");
 				}
 
-				if (
-					ingredientRow.category !== "add-on" ||
-					ingredientRow.pricePerServing <= 0
-				) {
-					throw new Error("Selected ingredient is not an available add-on.");
-				}
-
 				return { ingredient: ingredientRow, quantity: addOn.quantity };
 			});
 
+			// Removals (negative quantity) refund their per-serving price,
+			// matching the spec receipt, e.g. "--- whipped cream (10.00)".
 			const addOnTotal = addOns.reduce(
 				(sum, addOn) => sum + addOn.ingredient.pricePerServing * addOn.quantity,
 				0,
@@ -119,7 +114,7 @@ export function createOrder(orderData) {
 				staffId: cashierStaffId,
 				totalCost: total,
 			})
-			.returning({ txn: transaction.id })
+			.returning({ txn: transaction.id, date: transaction.date })
 			.get();
 
 		for (const item of pricedItems) {
@@ -153,6 +148,25 @@ export function createOrder(orderData) {
 			}
 		}
 
-		return { orderId: savedTransaction.txn, total };
+		return {
+			orderId: savedTransaction.txn,
+			total,
+			date: savedTransaction.date,
+			cashierName: cashier.name,
+			// Receipt breakdown: per-line prices as the server actually charged them.
+			items: pricedItems.map((item) => ({
+				recipeName: item.recipe.name,
+				size: item.size,
+				basePrice: basePriceFor(item.recipe, item.size),
+				subtotal: item.subtotal,
+				addOns: item.addOns.map((addOn) => ({
+					name: addOn.ingredient.name,
+					quantity: addOn.quantity,
+					lineTotal:
+						Math.round(addOn.ingredient.pricePerServing * addOn.quantity * 100) /
+						100,
+				})),
+			})),
+		};
 	});
 }

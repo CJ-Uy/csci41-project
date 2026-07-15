@@ -1,0 +1,154 @@
+/* Confirmation page (receipt) styles. Shared theme — palette variables,
+   header, .order-total, fonts — comes from /style.css. */
+
+.receipt {
+	max-width: 560px;
+	margin: 0 auto;
+	background: var(--cup);
+	border: 3px solid var(--navy);
+	border-radius: 16px;
+	padding: 28px;
+	box-shadow: 8px 8px 0 var(--red);
+}
+
+.receipt-header {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px 16px;
+	padding-bottom: 14px;
+	border-bottom: 2px dashed var(--line);
+	font-size: 0.9rem;
+	font-weight: 600;
+}
+
+.receipt-header .label {
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 1.5px;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+	margin-right: 4px;
+}
+
+.receipt-header strong {
+	color: var(--navy);
+}
+
+.receipt-item {
+	padding: 14px 0;
+	border-bottom: 2px dashed var(--line);
+}
+
+.receipt-item h2 {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 12px;
+	margin: 0;
+	font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+	font-weight: 700;
+	font-size: 1.1rem;
+	color: var(--navy);
+}
+
+.receipt-meta {
+	flex-shrink: 0;
+	font-family: "Quicksand", "Trebuchet MS", sans-serif;
+	font-weight: 700;
+	font-size: 0.78rem;
+	letter-spacing: 1.5px;
+	text-transform: uppercase;
+	color: var(--red);
+}
+
+.receipt-lines {
+	list-style: none;
+	margin: 8px 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+
+.receipt-line {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 12px;
+}
+
+.line-price {
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.line-price.line-refund {
+	color: var(--red);
+}
+
+.receipt-subtotal {
+	display: flex;
+	justify-content: flex-end;
+	align-items: baseline;
+	gap: 8px;
+	margin-top: 10px;
+	font-weight: 700;
+	font-size: 0.78rem;
+	letter-spacing: 1.5px;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+}
+
+.receipt-subtotal strong {
+	font-family: "Baloo 2", "Trebuchet MS", sans-serif;
+	font-size: 1rem;
+	letter-spacing: 0;
+	color: var(--navy);
+}
+
+.qty-badge {
+	display: inline-block;
+	min-width: 34px;
+	text-align: center;
+	font-weight: 700;
+	font-size: 0.8rem;
+	color: var(--navy);
+	background: var(--cream);
+	border: 2px solid var(--navy);
+	border-radius: 900px;
+	padding: 1px 8px;
+	margin-right: 6px;
+}
+
+.qty-badge.qty-removed {
+	color: var(--red);
+	border-color: var(--red);
+}
+
+.back-link {
+	display: block;
+	width: fit-content;
+	margin: 22px auto 0;
+	color: #ffffff;
+	background: var(--navy);
+	border: 2px solid var(--navy);
+	border-radius: 900px;
+	padding: 9px 22px;
+	font-weight: 700;
+	font-size: 0.85rem;
+	text-decoration: none;
+	transition: background 0.15s, transform 0.12s;
+}
+
+.back-link:hover {
+	background: var(--navy-dark);
+	transform: translateY(-1px);
+}
+
+@media (max-width: 620px) {
+	.receipt {
+		margin: 0 14px;
+	}
+}

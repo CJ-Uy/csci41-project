@@ -4,37 +4,52 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Milk Shake Ordering</title>
-		<link rel="stylesheet" href="style.css">
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700&display=swap"
+			rel="stylesheet" />
+		<link rel="stylesheet" href="style.css" />
 	</head>
 	<body>
-		<h1>Blizzard Blast Ordering</h1>
-		<form action="http://localhost:3000" method="POST">
-			<label for="customer_name">Name: </label>
-			<input type="text" name="customer_name" placeholder="Name" />
+		<h1>
+			Blizzard Blast Ordering
+			<span class="tagline">Order your shake!</span>
+		</h1>
+		<form action="/" method="POST">
+			<div class="order-meta">
+				<div class="field">
+					<label for="customer_name">Name</label>
+					<input
+						type="text"
+						id="customer_name"
+						name="customer_name"
+						placeholder="Who's this shake for?" />
+				</div>
 
-			<br />
-
-			<label for="cashier_staff_id">Cashier: </label>
-			<select name="cashier_staff_id">
-				<option value="1">Maria Santos</option>
-				<option value="3">Rosa Garcia</option>
-				<option value="5">Ana Reyes</option>
-			</select>
-
-			<br />
+				<div class="field">
+					<label for="cashier_staff_id">Cashier</label>
+					<select id="cashier_staff_id" name="cashier_staff_id">
+						<option value="1">Maria Santos</option>
+						<option value="3">Rosa Garcia</option>
+						<option value="5">Ana Reyes</option>
+					</select>
+				</div>
+			</div>
 
 			<div id="milkshakes">
 				<div class="milkshake-block" data-index="0">
 					<div class="milkshake-header">
-						<label>Milkshake</label>
+						<span class="shake-title">Milkshake</span>
 						<button
 							type="button"
 							class="remove-milkshake-btn"
+							aria-label="Remove this milkshake"
 							onclick="removeMilkshake(this)">
-							X
+							&#10005;
 						</button>
 					</div>
-					
+
 					<select name="milkshake_recipe[]">
 						<option value="" disabled selected>Select a Milkshake</option>
 						<option value="Chocolate Milkshake">Chocolate Milkshake</option>
@@ -44,49 +59,118 @@
 						<option value="Mango Milkshake">Mango Milkshake</option>
 					</select>
 
-					<br />
-
-					<div>
+					<div class="size-picker">
 						<p>Please select your size</p>
-						<label><input type="radio" name="size[0]" value="8oz" /> 8oz</label
-						><br />
+						<label><input type="radio" name="size[0]" value="8oz" /> 8oz</label>
 						<label
 							><input type="radio" name="size[0]" value="12oz" /> 12oz</label
-						><br />
+						>
 						<label
 							><input type="radio" name="size[0]" value="16oz" /> 16oz</label
 						>
 					</div>
 
-					<br />
-
-					<button type="button" onclick="addCustomization(this)">
-						add customization
+					<button
+						type="button"
+						class="add-customization-btn"
+						onclick="addCustomization(this)">
+						+ Add customization
 					</button>
 					<table class="customizations">
-						<tr>
+						<tr class="empty-row">
 							<th>No Customizations Added</th>
 						</tr>
 					</table>
-					<br />
+
+					<div class="shake-subtotal">Subtotal <strong>&mdash;</strong></div>
 				</div>
 			</div>
 
-			<br />
-
-			<button type="button" onclick="addMilkshake()">
-				Add another Milkshake
+			<button type="button" class="add-milkshake-btn" onclick="addMilkshake()">
+				Add another milkshake
 			</button>
 
-			<br />
+			<div class="order-total">
+				<span>Order total</span>
+				<strong id="order_total">&#8369;0.00</strong>
+			</div>
 
-			<input type="submit" value="Order" />
+			<input type="submit" value="Place order" />
 		</form>
 
 		<script>
 			const milkshakesContainer = document.getElementById("milkshakes");
+			const orderForm = document.querySelector("form");
+			const submitButton = orderForm.querySelector('input[type="submit"]');
+			const orderTotalEl = document.getElementById("order_total");
 
 			let milkshakeCount = 1; // index 0 is the block already in the page
+
+			let menu = null; // { recipes: { name: { "8oz": price, ... } }, addOns: { name: price } }
+			fetch("/menu")
+				.then((res) => res.json())
+				.then((data) => {
+					menu = data;
+					refreshTotals();
+				});
+
+			function peso(value) {
+				return "₱" + value.toFixed(2);
+			}
+
+			// Mirrors the server's pricing: base price for the size plus
+			// pricePerServing * quantity per customization (negative = removal).
+			// Returns null while the shake is incomplete or has an invalid row.
+			function shakeSubtotal(block) {
+				const recipeName = block.querySelector(
+					'select[name="milkshake_recipe[]"]',
+				).value;
+				const size = block.querySelector(
+					'input[type="radio"]:checked',
+				)?.value;
+				const prices = menu.recipes[recipeName];
+				if (!prices || !size) return null;
+
+				let sum = prices[size];
+				for (const row of block.querySelectorAll(".customizations tr")) {
+					const select = row.querySelector("select");
+					if (!select) continue; // header and empty-state rows
+
+					const price = menu.addOns[select.value];
+					const qty = Number(row.querySelector('input[type="number"]').value);
+					// price can legitimately be 0 (e.g. extra milk), so only
+					// an unknown ingredient is invalid.
+					if (price === undefined || !Number.isInteger(qty) || qty === 0)
+						return null;
+					// Removals (negative quantity) refund their per-serving price.
+					sum += price * qty;
+				}
+				return Math.round(sum * 100) / 100;
+			}
+
+			function refreshTotals() {
+				let total = 0;
+				let valid =
+					menu !== null &&
+					document.getElementById("customer_name").value.trim() !== "";
+
+				for (const block of milkshakesContainer.querySelectorAll(
+					".milkshake-block",
+				)) {
+					const subtotal = menu === null ? null : shakeSubtotal(block);
+					block.querySelector(".shake-subtotal strong").textContent =
+						subtotal === null ? "—" : peso(subtotal);
+
+					if (subtotal === null) valid = false;
+					else total += subtotal;
+				}
+
+				orderTotalEl.textContent = peso(Math.round(total * 100) / 100);
+				submitButton.disabled = !valid;
+			}
+
+			orderForm.addEventListener("input", refreshTotals);
+			orderForm.addEventListener("change", refreshTotals);
 
 			function addMilkshake() {
 				const index = milkshakeCount++;
@@ -101,9 +185,10 @@
 					radio.checked = false;
 				});
 				clone.querySelector(".customizations").innerHTML =
-					"<tr><th>No Customizations Added</th></tr>";
+					'<tr class="empty-row"><th>No Customizations Added</th></tr>';
 
 				milkshakesContainer.appendChild(clone);
+				refreshTotals();
 			}
 
 			function addCustomization(button) {
@@ -113,7 +198,7 @@
 
 				if (table.rows.length === 1) {
 					table.innerHTML =
-						"<tr><th>Customization</th><th>Quantity per Serving</th></tr>";
+						"<tr><th>Customization</th><th>Quantity per Serving</th><th></th></tr>";
 				}
 
 				table.insertAdjacentHTML(
@@ -131,34 +216,53 @@
 								<option value="Sprinkles">Sprinkles</option>
 								<option value="Caramel Sauce">Caramel Sauce</option>
 								<option value="Banana">Banana</option>
+								<option value="Milk">Milk</option>
+								<option value="Vanilla Ice Cream">Vanilla Ice Cream</option>
 							</select>
 						</td>
 						<td>
-							<input type="number" name="quantity[${index}][]" />
+							<div class="qty-stepper">
+								<button type="button" class="qty-btn" aria-label="Decrease quantity" onclick="stepQty(this, -1)">&minus;</button>
+								<input type="number" name="quantity[${index}][]" placeholder="&plusmn; qty" />
+								<button type="button" class="qty-btn" aria-label="Increase quantity" onclick="stepQty(this, 1)">+</button>
+							</div>
 						</td>
 						<td>
-							<button type="button" onclick="removeCustomization(this)">X</button>
+							<button type="button" class="remove-line-btn" aria-label="Remove customization" onclick="removeCustomization(this)">&#10005;</button>
 						</td>
 					</tr>
 				`,
 				);
+				refreshTotals();
+			}
+
+			function stepQty(button, delta) {
+				const input = button.parentElement.querySelector("input");
+				input.value = (Number(input.value) || 0) + delta;
+				refreshTotals();
 			}
 
 			function removeMilkshake(button) {
-				if (milkshakeCount>1){
+				// Indices are never reused, so a removed block can't collide
+				// with a later one's size[] radio group.
+				const blocks = milkshakesContainer.querySelectorAll(".milkshake-block");
+				if (blocks.length > 1) {
 					button.closest(".milkshake-block").remove();
 				}
-				milkshakeCount--;
-			};
+				refreshTotals();
+			}
 
 			function removeCustomization(button) {
 				const table = button.closest(".customizations");
 				button.closest("tr").remove();
 
 				if (table.rows.length === 1) {
-					table.innerHTML = "<tr><th>No Customizations Added</th></tr>";
+					table.innerHTML = '<tr class="empty-row"><th>No Customizations Added</th></tr>';
 				}
-			};
+				refreshTotals();
+			}
+
+			refreshTotals();
 		</script>
 	</body>
 </html>

@@ -1,6 +1,7 @@
 import express from "express"; // Web server framework
 import ejs from "ejs"; // Template engine used to render .html views
 import { createOrder } from "./src/routes/orderRoutes.js";
+import { getMenu } from "./src/routes/menuRoutes.js";
 
 const app = express();
 
@@ -13,6 +14,10 @@ app.use(express.static(".")); // Serves index.html (and any other root static fi
 function asList(value) {
 	return Array.isArray(value) ? value : value ? [value] : [];
 }
+
+app.get("/menu", (req, res) => {
+	res.json(getMenu());
+});
 
 app.post("/", (req, res) => {
 	console.log(req.body);
@@ -41,19 +46,24 @@ app.post("/", (req, res) => {
 			}),
 		});
 
-		res.render("Confirmation", {
-			...req.body,
-			milkshake_recipe: recipes,
-			size: sizes,
-			customization: recipes.map((_, index) => asList(customizations[index])),
-			quantity: recipes.map((_, index) => asList(quantities[index])),
+		res.render("confirmation", {
+			customer_name: req.body.customer_name,
+			items: order.items,
 			orderTotal: order.total,
+			orderId: order.orderId,
+			cashierName: order.cashierName,
+			orderDate: new Date(order.date).toLocaleDateString("en-US", {
+				year: "numeric",
+				month: "short",
+				day: "numeric",
+			}),
 		});
 	} catch (error) {
 		res.status(400).send(error.message);
 	}
 });
 
-app.listen(3000, () => {
-	console.log("Open the application at http://localhost:3000");
+const port = process.env.PORT ?? 3000;
+app.listen(port, () => {
+	console.log(`Open the application at http://localhost:${port}`);
 });

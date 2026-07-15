@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Order Confirmed</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700&display=swap"
+			rel="stylesheet" />
+		<link rel="stylesheet" href="/style.css" />
+		<link rel="stylesheet" href="/views/confirmation.css" />
+	</head>
+	<body>
+		<h1>
+			Order Confirmed
+			<span class="tagline">Thanks, <%= customer_name %>!</span>
+		</h1>
+
+		<main class="receipt">
+			<div class="receipt-header">
+				<span><span class="label">Customer</span> <strong><%= customer_name %></strong></span>
+				<span><span class="label">Txn</span> <strong>#<%= orderId %></strong></span>
+				<span><span class="label">Date</span> <strong><%= orderDate %></strong></span>
+				<span><span class="label">Cashier</span> <strong><%= cashierName %></strong></span>
+			</div>
+
+			<% items.forEach(function (item, i) { %>
+			<section class="receipt-item">
+				<h2>
+					<%= item.recipeName %>
+					<span class="receipt-meta">#<%= i + 1 %> &middot; <%= item.size %></span>
+				</h2>
+				<ul class="receipt-lines">
+					<li class="receipt-line">
+						<span>Base price</span>
+						<span class="line-price">&#8369;<%= item.basePrice.toFixed(2) %></span>
+					</li>
+					<% item.addOns.forEach(function (addOn) { %>
+					<li class="receipt-line">
+						<span>
+							<span class="qty-badge <%= addOn.quantity < 0 ? 'qty-removed' : '' %>">
+								<%= addOn.quantity > 0 ? "+" + addOn.quantity : addOn.quantity %>
+							</span>
+							<%= addOn.name %>
+						</span>
+						<span class="line-price <%= addOn.lineTotal < 0 ? 'line-refund' : '' %>">
+							<%= addOn.lineTotal < 0
+								? "(₱" + Math.abs(addOn.lineTotal).toFixed(2) + ")"
+								: "₱" + addOn.lineTotal.toFixed(2) %>
+						</span>
+					</li>
+					<% }); %>
+				</ul>
+				<div class="receipt-subtotal">
+					Subtotal <strong>&#8369;<%= item.subtotal.toFixed(2) %></strong>
+				</div>
+			</section>
+			<% }); %>
+
+			<div class="order-total">
+				<span>Total</span>
+				<strong>&#8369;<%= Number(orderTotal).toFixed(2) %></strong>
+			</div>
+
+			<a class="back-link" href="/">Make another order</a>
+		</main>
+	</body>
+</html>
