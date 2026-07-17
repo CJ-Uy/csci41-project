@@ -145,7 +145,8 @@
 					// Removals (negative quantity) refund their per-serving price.
 					sum += price * qty;
 				}
-				return Math.round(sum * 100) / 100;
+				// Removals can outweigh the base price; floor at 0, never negative.
+				return Math.max(0, Math.round(sum * 100) / 100);
 			}
 
 			function refreshTotals() {

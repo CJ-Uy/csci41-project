@@ -108,10 +108,14 @@ export function createOrder(orderData) {
 						customizationItem.quantity,
 				0,
 			);
-			const subtotal =
+			// Floor at 0 so heavy removals can't produce a negative subtotal
+			// (DB nonneg check would reject it anyway).
+			const subtotal = Math.max(
+				0,
 				Math.round(
 					(basePriceFor(recipeRow, item.size) + customizationTotal) * 100,
-				) / 100;
+				) / 100,
+			);
 
 			return { recipe: recipeRow, size: item.size, customizations, subtotal };
 		});
